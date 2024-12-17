@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pomodoro-bg: rgb(186, 73, 73);
+  --shortbreak-bg: rgb(56, 133, 138);
+  --longbreak-bg: rgb(57, 112, 151);
+}
+
+.bg-pomodoro {
+  background-color: var(--pomodoro-bg);
+}
+
+.bg-shortbreak {
+  background-color: var(--shortbreak-bg);
+}
+
+.bg-longbreak {
+  background-color: var(--longbreak-bg);
+}
