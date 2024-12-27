@@ -1,7 +1,7 @@
-import { Button } from "@/components/Button";
+import Button from "./Button";
 import { ChartLine, Check, Settings } from "lucide-react";
 
-export function Header() {
+export default function Header() {
   return (
     <header className="container mx-auto px-4 py-6 flex justify-between items-center">
       <div className="flex items-center gap-2 text-white">

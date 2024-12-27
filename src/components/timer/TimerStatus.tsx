@@ -5,7 +5,7 @@ interface TimerStatusProps {
   currentInterval: number;
 }
 
-export function TimerStatus({ mode, currentInterval }: TimerStatusProps) {
+export default function TimerStatus({ mode, currentInterval }: TimerStatusProps) {
   return (
     <div className="max-w-2xl mx-auto mt-12 text-center">
       <h2 className="text-white/90 text-xl font-bold">#{currentInterval}</h2>

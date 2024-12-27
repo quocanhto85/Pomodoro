@@ -1,15 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { TimerMode, TIMER_MODES, POMODOROS_BEFORE_LONG_BREAK } from "@/helpers/constants";
-import { playSound } from "@/helpers/sound";
+import { Howl } from "howler";
+import { pomodoroService } from "@/services/api/pomodoro";
+import useAnimationFrameTimer from './useAnimationFrameTimer';
 
-export function useTimer() {
+export default function useTimer() {
   const [mode, setMode] = useState<TimerMode>("pomodoro");
   const [timeLeft, setTimeLeft] = useState(TIMER_MODES[mode].time);
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const [currentInterval, setCurrentInterval] = useState(1);
+
+  let bellSound: any;
+  
+  // Initialize sound inside user interaction
+  const initializeBellSound = () => {
+    if (!bellSound) {
+      bellSound = new Howl({
+        src: ["/bell_sound.wav"],
+        volume: 1.0,
+      });
+      console.log("Audio initialized");
+    }
+  }
 
   // Reset timer when mode changes
   useEffect(() => {
@@ -34,16 +49,23 @@ export function useTimer() {
   useEffect(() => {
     if (timeLeft === 0) {
       setIsRunning(false);
-      playSound();
+      initializeBellSound();
+      bellSound.play();
       handleTimerComplete();
     }
   }, [timeLeft]);
 
-  const handleTimerComplete = useCallback(() => {
+  const handleTimerComplete = useCallback(async () => {
     if (mode === "pomodoro") {
+      try {
+        await pomodoroService.incrementSession();
+      } catch (error) {
+        console.error("Failed to update pomodoro session:", error);
+      }
+
       const newCompletedPomodoros = completedPomodoros + 1;
       setCompletedPomodoros(newCompletedPomodoros);
-      
+
       if (newCompletedPomodoros % POMODOROS_BEFORE_LONG_BREAK === 0) {
         setMode("longbreak");
       } else {
@@ -63,11 +85,14 @@ export function useTimer() {
 
   const handleSkip = () => {
     if (mode === "pomodoro") {
-      if ((completedPomodoros + 1) % POMODOROS_BEFORE_LONG_BREAK === 0) {
+      const nextPomodoros = completedPomodoros + 1;
+      // Check if next would be a long break
+      if (nextPomodoros % POMODOROS_BEFORE_LONG_BREAK === 0) {
         setMode("longbreak");
       } else {
         setMode("shortbreak");
       }
+      setCompletedPomodoros(nextPomodoros);
     } else {
       setMode("pomodoro");
       if (mode === "shortbreak" || mode === "longbreak") {
