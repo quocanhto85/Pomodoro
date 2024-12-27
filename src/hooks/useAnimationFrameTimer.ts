@@ -1,49 +1,49 @@
-'use client';
+"use client";
 
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-interface UseAnimationFrameTimerProps {
-  isRunning: boolean;
-  onTick: () => void;
-}
+type AnimationFrameCallback = (currentTime: number) => boolean;
 
-export default function useAnimationFrameTimer({ isRunning, onTick }: UseAnimationFrameTimerProps) {
-  // Initialize with undefined as the initial value
-  const animationFrameRef = useRef<number | undefined>(undefined);
-
+export default function useAnimationFrameTimer(
+  callback: AnimationFrameCallback,
+  isActive: boolean
+) {
+  // Store the animation frame ID for cleanup
+  const frameRef = useRef<number | undefined>(undefined);
+  
+  // Store the callback in a ref to avoid re-creating the animation loop
+  // Initialize with the provided callback
+  const callbackRef = useRef<AnimationFrameCallback>(callback);
+  
+  // Update the callback ref when the callback changes
   useEffect(() => {
-    if (!isRunning) {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      return;
+    callbackRef.current = callback;
+  }, [callback]);
+
+  // Animation loop function
+  const animate = (currentTime: number) => {
+    // Call the callback and check if we should continue
+    const shouldContinue = callbackRef.current(currentTime);
+    
+    // If the animation should continue and is still active, schedule the next frame
+    if (shouldContinue && isActive) {
+      frameRef.current = requestAnimationFrame(animate);
     }
+  };
 
-    let previousTime = performance.now();
-    let accumulatedTime = 0;
-
-    function tick(currentTime: number) {
-      if (!isRunning) return;
-
-      const deltaTime = currentTime - previousTime;
-      accumulatedTime += deltaTime;
-
-      // Update every second
-      if (accumulatedTime >= 1000) {
-        onTick();
-        accumulatedTime -= 1000;
-      }
-
-      previousTime = currentTime;
-      animationFrameRef.current = requestAnimationFrame(tick);
+  // Set up and clean up the animation loop
+  useEffect(() => {
+    if (isActive) {
+      // Start the animation loop
+      frameRef.current = requestAnimationFrame(animate);
+      
+      // Cleanup function
+      return () => {
+        if (frameRef.current !== undefined) {
+          cancelAnimationFrame(frameRef.current);
+          frameRef.current = undefined;
+        }
+      };
     }
-
-    animationFrameRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isRunning, onTick]);
+  }, [isActive]); // Only re-run when isActive changes
 }
