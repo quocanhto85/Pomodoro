@@ -12,10 +12,10 @@ export default function TimerTabs({ currentMode, onModeChange }: TimerTabsProps)
       {(Object.keys(TIMER_MODES) as TimerMode[]).map((mode) => (
         <Button
         key={mode}
-        className={`transition-colors ${
+        className={`transition-colors font-bold ${
           currentMode === mode 
-            ? "bg-white/20" 
-            : "hover:bg-white/10"
+            ? "bg-white/40" 
+            : "hover:bg-white/30"
         }`}
         onClick={() => onModeChange(mode)}
       >

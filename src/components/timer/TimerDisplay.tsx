@@ -1,8 +1,8 @@
 import { TIMER_MODES, TimerMode } from "@/helpers/constants";
 import { formatTime } from "@/helpers/time";
+import { pomodoroService } from "@/services/api/pomodoro";
 import { SkipForward } from "lucide-react";
 import Button from "@/components/common/Button";
-import { pomodoroService } from "@/services/api/pomodoro";
 
 interface TimerDisplayProps {
   timeLeft: number;
