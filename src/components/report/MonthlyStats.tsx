@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -8,8 +8,8 @@ import {
   Tooltip,
   Legend,
   ChartOptions
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -21,18 +21,18 @@ ChartJS.register(
 );
 
 const monthlyData = {
-  labels: ['September', 'October', 'November', 'December'],
+  labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
   datasets: [
     {
-      label: 'Total Hours',
-      data: [74.17, 135.00, 148.75, 25.00],
-      backgroundColor: 'rgb(79, 70, 229)',
+      label: "Total Hours",
+      data: [74.17, 135.00, 148.75, 25.00, 74.17, 135.00, 148.75, 25.00, 148.75, 25.00],
+      backgroundColor: "rgb(79, 70, 229)",
       borderRadius: 6,
     }
   ]
 };
 
-const options: ChartOptions<'bar'> = {
+const options: ChartOptions<"bar"> = {
     responsive: true,
     plugins: {
       legend: {
@@ -40,10 +40,10 @@ const options: ChartOptions<'bar'> = {
       },
       title: {
         display: true,
-        text: 'Monthly Focus Hours',
+        text: "Monthly Focus Hours",
         font: {
           size: 16,
-          weight: 'bold'
+          weight: "bold"
         }
       }
     },
@@ -52,7 +52,7 @@ const options: ChartOptions<'bar'> = {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Hours'
+          text: "Hours"
         }
       }
     }

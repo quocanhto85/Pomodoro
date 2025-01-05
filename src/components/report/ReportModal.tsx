@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { MonthlyStats } from "./MonthlyStats";
 import { DailyStats } from "./DailyStats";
 import { ActivitySummary } from "./ActivitiySummary";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface ReportModalProps {
   isOpen: boolean;
