@@ -1,4 +1,3 @@
-// useTimer.ts
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -12,13 +11,13 @@ export default function useTimer() {
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const [currentInterval, setCurrentInterval] = useState(1);
-  
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const endTimeRef = useRef<number | null>(null);
 
   let bellSound: any;
-  
+
   const initializeBellSound = () => {
     if (!bellSound) {
       bellSound = new Howl({
@@ -43,7 +42,10 @@ export default function useTimer() {
   const handleTimerComplete = useCallback(async () => {
     if (mode === "pomodoro") {
       try {
-        await pomodoroService.incrementSession();
+        // Update Pomodoro counts in database and send data to Make webhook
+        await Promise.all([
+          pomodoroService.incrementSession(),
+        ]);
       } catch (error) {
         console.error("Failed to update pomodoro session:", error);
       }
@@ -74,7 +76,7 @@ export default function useTimer() {
       timerRef.current = setInterval(() => {
         const currentTime = Date.now();
         const remaining = Math.ceil((endTimeRef.current! - currentTime) / 1000);
-        
+
         if (remaining <= 0) {
           setTimeLeft(0);
           setIsRunning(false);
@@ -118,7 +120,7 @@ export default function useTimer() {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    
+
     if (mode === "pomodoro") {
       const nextPomodoros = completedPomodoros + 1;
       if (nextPomodoros % POMODOROS_BEFORE_LONG_BREAK === 0) {

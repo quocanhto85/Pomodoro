@@ -10,12 +10,12 @@ interface TimerDisplayProps {
   mode: TimerMode;
   onToggle: () => void;
   onSkip: () => void;
-  // onTest: () => void;
+  onTest: () => void;
 }
 
 const onTest = async () => {
   try {
-    await pomodoroService.incrementSession();
+    await pomodoroService.updateGoogleSheet();
   } catch(error) {
     console.error("Failed to update pomodoro session:", error);
   }
