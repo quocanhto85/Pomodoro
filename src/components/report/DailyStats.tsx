@@ -1,20 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
-import { MonthPagination } from "./MonthPagination";
+import { CalendarPicker } from "./CalendarPicker";
 import { StatsTable } from "./StatsTable";
-
-// This would typically come from your data source
-const dailyData = [
-  { date: "2024-09-08", pomodoros: 9, hours: 3.75 },
-  { date: "2024-09-09", pomodoros: 7, hours: 2.92 },
-  { date: "2024-09-10", pomodoros: 6, hours: 2.50 },
-  // Add more data as needed
-];
+import { AppDispatch, RootState } from "../../store/store";
+import { fetchDailyStats } from "../../store/statsSlice";
 
 export function DailyStats() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const dispatch = useDispatch<AppDispatch>();
+  const { dailyStats, loading, error } = useSelector((state: RootState) => state.stats);
 
-  const filteredData = dailyData.filter(record => {
+  useEffect(() => {
+    dispatch(fetchDailyStats(currentMonth));
+  }, [currentMonth, dispatch]);
+
+  const filteredData = dailyStats.filter(record => {
     const recordDate = new Date(record.date);
     return isWithinInterval(recordDate, {
       start: startOfMonth(currentMonth),
@@ -23,22 +24,28 @@ export function DailyStats() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h2 className="text-2xl font-semibold text-gray-800">Daily Statistics</h2>
       
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <MonthPagination 
-          currentMonth={currentMonth}
+      <div className="grid md:grid-cols-[300px,1fr] gap-6">
+        <CalendarPicker 
+          selectedMonth={currentMonth}
           onMonthChange={setCurrentMonth}
         />
         
-        {filteredData.length > 0 ? (
-          <StatsTable data={filteredData} />
-        ) : (
-          <div className="text-center py-12 text-gray-500">
-            No data available for this month
-          </div>
-        )}
+        <div className="bg-white rounded-lg p-6 shadow-sm">
+          {loading ? (
+            <div className="text-center py-12 text-gray-500">Loading...</div>
+          ) : error ? (
+            <div className="text-center py-12 text-red-500">{error}</div>
+          ) : filteredData.length > 0 ? (
+            <StatsTable data={filteredData} />
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              No data available for this month
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
