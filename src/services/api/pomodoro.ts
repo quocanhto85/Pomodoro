@@ -11,6 +11,20 @@ export const pomodoroService = {
     }
   },
 
+  getDailySessions: async (month: number, year: number) => {
+    try {
+      const response = await axios.get("/api/pomodoro/sessions", {
+        params: {
+          month, year
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching pomodoro sessions:", error);
+      throw error;
+    }
+  },
+
   updateGoogleSheet: async () => {
     try {
       const webhookUrl = process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL;

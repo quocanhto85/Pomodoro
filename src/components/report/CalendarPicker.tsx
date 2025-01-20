@@ -1,6 +1,4 @@
-import { DayPicker } from "react-day-picker";
-import { format } from "date-fns";
-import "react-day-picker/dist/style.css";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CalendarPickerProps {
   selectedMonth: Date;
@@ -8,34 +6,50 @@ interface CalendarPickerProps {
 }
 
 export function CalendarPicker({ selectedMonth, onMonthChange }: CalendarPickerProps) {
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+  const currentYear = selectedMonth.getFullYear();
+  const currentMonth = selectedMonth.getMonth();
+
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <DayPicker
-        mode="single"
-        month={selectedMonth}
-        onMonthChange={onMonthChange}
-        showOutsideDays
-        classNames={{
-          months: "flex flex-col",
-          month: "space-y-4",
-          caption: "flex justify-center pt-1 relative items-center",
-          caption_label: "text-sm font-medium",
-          nav: "space-x-1 flex items-center",
-          nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-          nav_button_previous: "absolute left-1",
-          nav_button_next: "absolute right-1",
-          table: "w-full border-collapse space-y-1",
-          head_row: "flex",
-          head_cell: "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
-          row: "flex w-full mt-2",
-          cell: "text-center text-sm relative p-0 hover:bg-gray-100 rounded-md",
-          day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-          day_selected: "bg-rose-500 text-white hover:bg-rose-600 hover:text-white focus:bg-rose-500 focus:text-white",
-          day_today: "bg-gray-100",
-          day_outside: "text-gray-400 opacity-50",
-          day_disabled: "text-gray-400 opacity-50",
-        }}
-      />
+    <div className="bg-white rounded-lg shadow p-6 w-[300px]">
+      {/* Year Navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => onMonthChange(new Date(currentYear - 1, currentMonth))}
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="text-lg font-medium">{currentYear}</span>
+        <button
+          onClick={() => onMonthChange(new Date(currentYear + 1, currentMonth))}
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Months Grid */}
+      <div className="grid grid-cols-3 gap-2">
+        {months.map((month, index) => (
+          <button
+            key={month}
+            onClick={() => onMonthChange(new Date(currentYear, index))}
+            className={`
+              p-2 rounded text-sm transition-colors
+              ${currentMonth === index 
+                ? "bg-rose-500 text-white" 
+                : "hover:bg-gray-100 text-gray-700"}
+            `}
+          >
+            {month}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

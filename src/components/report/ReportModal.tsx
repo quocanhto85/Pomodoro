@@ -4,8 +4,8 @@ import { MonthlyStats } from "./MonthlyStats";
 import { DailyStats } from "./DailyStats";
 import { ActivitySummary } from "./ActivitiySummary";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Provider } from 'react-redux';
-import { store } from '../../store/store';
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
 
 interface ReportModalProps {
   isOpen: boolean;

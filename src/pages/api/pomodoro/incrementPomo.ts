@@ -12,11 +12,14 @@ export default async function handler(
     try {
         const client = await clientPromise;
         const db = client.db("pomodoro_app");
-
         const userId = "anhtpq";
 
+        // Get today's date at midnight UTC to use as the date key
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+
         const result = await db.collection("pomodoroSessions").updateOne(
-            { userId },
+            { userId, date: today },
             {
                 $inc: { completedCount: 1 },
                 $setOnInsert: { createdAt: new Date() },

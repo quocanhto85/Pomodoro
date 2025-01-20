@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { CalendarPicker } from "./CalendarPicker";
 import { StatsTable } from "./StatsTable";
-import { AppDispatch, RootState } from "../../store/store";
-import { fetchDailyStats } from "../../store/statsSlice";
+import { AppDispatch, RootState } from "@/store/store";
+import { fetchDailyStats } from "@/store/statsSlice";
 
 export function DailyStats() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -33,7 +33,7 @@ export function DailyStats() {
           onMonthChange={setCurrentMonth}
         />
         
-        <div className="bg-white rounded-lg p-6 shadow-sm">
+        <div className="bg-white rounded-lg shadow-sm h-[600px] flex flex-col">
           {loading ? (
             <div className="text-center py-12 text-gray-500">Loading...</div>
           ) : error ? (

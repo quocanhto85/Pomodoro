@@ -12,37 +12,46 @@ interface StatsTableProps {
 
 export function StatsTable({ data }: StatsTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Date
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Pomodoros
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Hours
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((record) => (
-            <tr key={record.date} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {format(new Date(record.date), "MMM dd, yyyy")}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {record.pomodoros}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {record.hours.toFixed(2)}
-              </td>
+    <div className="flex flex-col h-full">
+      {/* Fixed Header */}
+      <div className="border-b">
+        <table className="min-w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="sticky top-0 px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/3">
+                Date
+              </th>
+              <th className="sticky top-0 px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/3">
+                Pomodoros
+              </th>
+              <th className="sticky top-0 px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/3">
+                Hours
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+        </table>
+      </div>
+
+      {/* Scrollable Body */}
+      <div className="flex-1 overflow-auto">
+        <table className="min-w-full">
+          <tbody className="bg-white divide-y divide-gray-100">
+            {data.map((record) => (
+              <tr key={record.date} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm text-gray-900 w-1/3">
+                  {format(new Date(record.date), "MMM dd, yyyy")}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-900 w-1/3">
+                  {record.pomodoros}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-900 w-1/3">
+                  {record.hours.toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
