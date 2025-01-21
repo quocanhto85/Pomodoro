@@ -10,7 +10,6 @@ export default function useTimer() {
   const [timeLeft, setTimeLeft] = useState(TIMER_MODES[mode].time);
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
-  const [currentInterval, setCurrentInterval] = useState(1);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -60,9 +59,6 @@ export default function useTimer() {
       }
     } else {
       setMode("pomodoro");
-      if (mode === "shortbreak" || mode === "longbreak") {
-        setCurrentInterval(prev => prev + 1);
-      }
     }
   }, [mode, completedPomodoros]);
 
@@ -131,9 +127,6 @@ export default function useTimer() {
       setCompletedPomodoros(nextPomodoros);
     } else {
       setMode("pomodoro");
-      if (mode === "shortbreak" || mode === "longbreak") {
-        setCurrentInterval(prev => prev + 1);
-      }
     }
     setTimeLeft(TIMER_MODES[mode].time);
     setIsRunning(false);
@@ -143,7 +136,6 @@ export default function useTimer() {
     mode,
     timeLeft,
     isRunning,
-    currentInterval,
     completedPomodoros,
     setMode,
     toggleTimer,

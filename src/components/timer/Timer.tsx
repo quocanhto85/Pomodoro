@@ -10,7 +10,6 @@ export default function Timer() {
     mode,
     timeLeft,
     isRunning,
-    currentInterval,
     setMode,
     toggleTimer,
     handleSkip,
@@ -33,7 +32,7 @@ export default function Timer() {
             onSkip={handleSkip}
           />
         </div>
-        <TimerStatus mode={mode} currentInterval={currentInterval} />
+        <TimerStatus mode={mode} />
       </main>
     </div>
   );
