@@ -10,16 +10,16 @@ interface TimerDisplayProps {
   mode: TimerMode;
   onToggle: () => void;
   onSkip: () => void;
-  onTest: () => void;
+  // onTest: () => void;
 }
 
-const onTest = async () => {
-  try {
-    await pomodoroService.updateGoogleSheet();
-  } catch(error) {
-    console.error("Failed to update pomodoro session:", error);
-  }
-}
+// const onTest = async () => {
+//   try {
+//     await pomodoroService.incrementSession();
+//   } catch(error) {
+//     console.error("Failed to update pomodoro session:", error);
+//   }
+// }
 
 export default function TimerDisplay({ timeLeft, isRunning, mode, onToggle, onSkip }: TimerDisplayProps) {
   return (
