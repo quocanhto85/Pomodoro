@@ -30,10 +30,10 @@ export const pomodoroService = {
       const webhookUrl = process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL;
 
       if (!webhookUrl) {
-        throw new Error('Make webhook URL not configured');
+        throw new Error("Make webhook URL not configured");
       }
 
-      const today = new Date().toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+      const today = new Date().toLocaleDateString("en-GB"); // Format: DD/MM/YYYY
 
       const response = await axios.post(webhookUrl, {
         date: today,
