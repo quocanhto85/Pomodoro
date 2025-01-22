@@ -14,24 +14,6 @@ const initialState: StatsState = {
   error: null
 };
 
-// export const fetchDailyStats = createAsyncThunk(
-//   "stats/fetchDaily",
-//   async (month: Date) => {
-//     // This will be replaced with actual API call
-//     const mockData: DailyRecord[] = [
-//       { date: "2024-01-01", pomodoros: 8, hours: 3.33 },
-//       { date: "2024-01-02", pomodoros: 12, hours: 5.00 },
-//       { date: "2024-01-03", pomodoros: 6, hours: 2.50 },
-//       { date: "2024-01-04", pomodoros: 10, hours: 4.17 },
-//       { date: "2024-01-05", pomodoros: 15, hours: 6.25 }
-//     ];
-    
-//     // Simulate API delay
-//     await new Promise(resolve => setTimeout(resolve, 500));
-//     return mockData;
-//   }
-// );
-
 export const fetchDailyStats = createAsyncThunk(
   "stats/fetchDailyStats", // This is just an action identifier for Redux
   async (date: Date) => {
@@ -42,7 +24,7 @@ export const fetchDailyStats = createAsyncThunk(
     
     // Simply map the required fields from the response
     return response.data.map((session: PomodoroSession) => ({
-      date: new Date(session.date).toISOString().split('T')[0],
+      date: new Date(session.date).toISOString().split("T")[0],
       pomodoros: session.completedCount,
       hours: session.completedCount * 25 / 60
     }));

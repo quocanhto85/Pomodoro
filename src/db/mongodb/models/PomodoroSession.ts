@@ -22,13 +22,13 @@ const PomodoroSessionSchema = new mongoose.Schema({
 PomodoroSessionSchema.index({ userId: 1, date: 1 }, { unique: true });
 
 // Virtual property for hours (not stored in DB, calculated on-the-fly)
-PomodoroSessionSchema.virtual('hours').get(function () {
+PomodoroSessionSchema.virtual("hours").get(function () {
   return (this.completedCount * 25) / 60; // 25 minutes per pomodoro
 });
 
 // Ensure virtuals are included when converting to JSON
-PomodoroSessionSchema.set('toJSON', { virtuals: true });
-PomodoroSessionSchema.set('toObject', { virtuals: true });
+PomodoroSessionSchema.set("toJSON", { virtuals: true });
+PomodoroSessionSchema.set("toObject", { virtuals: true });
 
 const PomodoroSession = mongoose.models.PomodoroSession ||
   mongoose.model("PomodoroSession", PomodoroSessionSchema);

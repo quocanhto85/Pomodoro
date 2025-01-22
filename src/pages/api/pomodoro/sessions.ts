@@ -27,8 +27,6 @@ export default async function handler(
       if (isNaN(yearNum)) {
         return res.status(400).json({ message: "Invalid year parameter" });
       }
-
-      console.log('monthNum: ', monthNum)
   
       const sessions = await db.collection("pomodoroSessions").find({
           userId,

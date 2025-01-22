@@ -36,14 +36,14 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <Button className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-all duration-300 ease-in-out backdrop-blur-lg
                 ${isSettingsOpen 
-                  ? 'bg-white/20 shadow-lg scale-105' 
-                  : 'bg-white/10 hover:bg-white/15 hover:shadow-lg hover:scale-105'} 
+                  ? "bg-white/20 shadow-lg scale-105" 
+                  : "bg-white/10 hover:bg-white/15 hover:shadow-lg hover:scale-105"} 
                 active:scale-95`}>
               <Settings className={`w-5 h-5 transition-all duration-300 ease-in-out
                   ${isSettingsOpen 
-                    ? 'rotate-180 scale-110' 
-                    : 'group-hover:rotate-90 group-hover:scale-110'}`} />
-              <span className={`transition-transform duration-300 ${isSettingsOpen ? 'translate-x-0.5' : 'group-hover:translate-x-0.5'}`}>Setting</span>
+                    ? "rotate-180 scale-110" 
+                    : "group-hover:rotate-90 group-hover:scale-110"}`} />
+              <span className={`transition-transform duration-300 ${isSettingsOpen ? "translate-x-0.5" : "group-hover:translate-x-0.5"}`}>Setting</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
