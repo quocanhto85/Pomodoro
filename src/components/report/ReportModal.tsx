@@ -43,16 +43,16 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const response = await pomodoroService.fetchStats(selectedYear);
+      const result = await pomodoroService.fetchStats(selectedYear);
+
+      if (result.success && result.data) {
         setStatsData({
-          totalPomodoros: response.totalPomodoros,
-          monthlyPomodoros: response.monthlyPomodoros
+          totalPomodoros: result.data.totalPomodoros,
+          monthlyPomodoros: result.data.monthlyPomodoros
         });
-      } catch (error) {
-        console.error("Error fetching statistics:", error);
+      } else if (!result.success && result.error) {
         showErrorToast({
-          message: "Unable to load statistics. Please try again later."
+          message: result.error
         });
       }
     };
