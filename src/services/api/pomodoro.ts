@@ -28,7 +28,7 @@ export const pomodoroService = {
   fetchStats: async (selectedYear: number) => {
     try {
       const response = await axios.post("/api/pomodoro/stats", {
-        params: selectedYear
+        year: selectedYear
       });
       return response.data;
     } catch (error) {
