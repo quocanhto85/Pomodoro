@@ -1,25 +1,34 @@
 import { Clock, Calendar, Flame } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-const stats = [
-  { 
-    icon: Clock,
-    value: "382.92",
-    label: "hours focused"
-  },
-  {
-    icon: Calendar,
-    value: "15.95",
-    label: "days accessed"
-  },
-  {
-    icon: Flame,
-    value: "4",
-    label: "day streak"
-  }
-];
+interface ActivitySummaryProps {
+  totalPomodoros: number;
+}
 
-export function ActivitySummary() {
+export function ActivitySummary({ totalPomodoros }: ActivitySummaryProps) {
+  // Convert pomodoros to hours (25 minutes per pomodoro)
+  const totalHours = ((totalPomodoros * 25) / 60).toFixed(2);
+  // Convert hours to days
+  const totalDays = (Number(totalHours) / 24).toFixed(2);
+
+  const stats = [
+    { 
+      icon: Flame,
+      value: totalPomodoros.toString(),
+      label: "pomodoros"
+    },
+    {
+      icon: Clock,
+      value: totalHours,
+      label: "hours focused"
+    },
+    {
+      icon: Calendar,
+      value: totalDays,
+      label: "days accessed"
+    }
+  ];
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold text-gray-800">Activity Summary</h2>
@@ -31,7 +40,9 @@ export function ActivitySummary() {
               <div className="inline-block p-3 bg-white rounded-full mb-3">
                 <stat.icon className="w-6 h-6 text-rose-600" />
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-1">{stat.value}</div>
+              <div className="text-2xl font-bold text-gray-800 mb-1">
+                {stat.value}
+              </div>
               <div className="text-sm text-gray-600">{stat.label}</div>
             </div>
           </Card>
