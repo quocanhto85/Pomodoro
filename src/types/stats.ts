@@ -13,14 +13,3 @@ export interface PomodoroSession {
     createdAt: string;
     updatedAt: string;
 }
-
-export interface StatsResponse {
-    totalPomodoros: number;
-    monthlyPomodoros: number[];
-}
-
-export interface ServiceResult {
-    success: boolean;
-    data?: StatsResponse;
-    error?: string;
-}

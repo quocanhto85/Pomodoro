@@ -1,5 +1,4 @@
 import axios from "axios";
-import { StatsResponse, ServiceResult } from "@/types/stats";
 
 export const pomodoroService = {
   incrementSession: async () => {
@@ -26,22 +25,15 @@ export const pomodoroService = {
     }
   },
 
-  fetchStats: async (selectedYear: number): Promise<ServiceResult> => {
+  fetchStats: async (selectedYear: number) => {
     try {
       const response = await axios.post("/api/pomodoro/stats", {
-        year: selectedYear
+        params: selectedYear
       });
-      return {
-        success: true,
-        data: response.data
-      };
+      return response.data;
     } catch (error) {
       console.error("Error fetching pomodoro stats:", error);
-      return {
-        success: false,
-        error: "Unable to load statistics. Please try again later."
-      };
+      throw error;
     }
   },
-
 };
