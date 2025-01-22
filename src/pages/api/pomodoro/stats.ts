@@ -5,7 +5,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    if (req.method !== "GET") {
+    if (req.method !== "POST") {
         return res.status(405).json({ message: "Method not allowed" });
     }
 
@@ -14,8 +14,8 @@ export default async function handler(
         const db = client.db("pomodoro_app");
         const userId = "anhtpq";
         
-        // Get the year from query params, default to current year
-        const year = parseInt(req.query.year as string) || new Date().getFullYear();
+        // Get the year from request body, default to current year
+        const year = parseInt(req.body.year as string) || new Date().getFullYear();
 
         // Create date range for the year
         const startDate = new Date(Date.UTC(year, 0, 1, 0, 0, 0));
