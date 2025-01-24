@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 
 interface ActivitySummaryProps {
   totalPomodoros: number;
+  isLoading?: boolean;
 }
 
-export function ActivitySummary({ totalPomodoros }: ActivitySummaryProps) {
+export function ActivitySummary({ totalPomodoros, isLoading }: ActivitySummaryProps) {
   // Convert pomodoros to hours (25 minutes per pomodoro)
   const totalHours = ((totalPomodoros * 25) / 60).toFixed(2);
   // Convert hours to days
@@ -35,7 +36,7 @@ export function ActivitySummary({ totalPomodoros }: ActivitySummaryProps) {
       
       <div className="grid grid-cols-3 gap-4">
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-rose-50">
+          <Card key={index} className={`bg-rose-50 relative ${isLoading ? "opacity-50" : ""}`}>
             <div className="p-6 text-center">
               <div className="inline-block p-3 bg-white rounded-full mb-3">
                 <stat.icon className="w-6 h-6 text-rose-600" />

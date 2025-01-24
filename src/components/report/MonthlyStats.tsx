@@ -22,9 +22,10 @@ ChartJS.register(
 
 interface MonthlyStatsProps {
   monthlyPomodoros: number[];
+  isLoading?: boolean;
 }
 
-export function MonthlyStats({ monthlyPomodoros }: MonthlyStatsProps) {
+export function MonthlyStats({ monthlyPomodoros, isLoading = false }: MonthlyStatsProps) {
   // Convert pomodoros to hours for each month
   const monthlyHours = monthlyPomodoros.map(count => 
     Number(((count * 25) / 60).toFixed(2))
@@ -85,7 +86,7 @@ export function MonthlyStats({ monthlyPomodoros }: MonthlyStatsProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold text-gray-800">Focus Hours</h2>
-      <div className="bg-white rounded-lg p-6 border">
+      <div className={`bg-white rounded-lg p-6 border relative ${isLoading ? "opacity-50" : ""}`}>
         <Bar data={monthlyData} options={options} />
       </div>
     </div>

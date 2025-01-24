@@ -31,6 +31,7 @@ const tabs = [
 
 export function ReportModal({ isOpen, onClose }: ReportModalProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [isLoading, setIsLoading] = useState(false);
   const [statsData, setStatsData] = useState({
     totalPomodoros: 0,
     monthlyPomodoros: Array(12).fill(0)
@@ -43,6 +44,7 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
 
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
         const response = await pomodoroService.fetchStats(selectedYear);
         setStatsData({
@@ -54,6 +56,8 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
         showErrorToast({
           message: "Unable to load statistics. Please try again later."
         });
+      } finally {
+        setIsLoading(false);
       }
     };
     if (isOpen) {
@@ -68,6 +72,15 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-4xl bg-white rounded-xl shadow-xl">
           <div className="relative">
+            {/* Loading Overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-xl">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
+                  <p className="text-gray-600 font-medium">Loading statistics...</p>
+                </div>
+              </div>
+            )}
             <button
               onClick={onClose}
               className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
