@@ -22,7 +22,7 @@ const ErrorToastContent = ({ message }: ErrorToastContentProps) => (
 
 export const showErrorToast = ({
     message,
-    duration = 2000
+    duration = 4000
 }: ErrorToastProps) => {
     toast.custom((id) => (
         <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-md w-full">
