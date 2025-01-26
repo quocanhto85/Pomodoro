@@ -16,6 +16,10 @@ export const TIMER_MODES = {
   },
 } as const;
 
+export const STORAGE_KEYS = {
+  COMPLETED_POMODOROS: "completedPomodoros",
+} as const;
+
 export const POMODOROS_BEFORE_LONG_BREAK = 4;
 
 export type TimerMode = keyof typeof TIMER_MODES;
