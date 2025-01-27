@@ -71,33 +71,36 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      {/* Backdrop with responsive padding */}
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      {/* Modal container with responsive positioning and sizing */}
       <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6">
-        <DialogPanel className="w-full max-w-4xl bg-white rounded-xl shadow-xl max-h-[90vh] overflow-hidden flex flex-col">
-          <Tabs defaultValue="summary" className="w-full flex flex-col min-h-0">
-            {/* Tabs header - Made scrollable for small screens */}
-            <div className="flex-none">
-              <TabsList className="border-b overflow-x-auto flex-nowrap whitespace-nowrap scrollbar-hide">
-                {tabs.map(tab => (
-                  <TabsTrigger
-                    key={tab.id}
-                    value={tab.id}
-                    className="px-4 sm:px-8 py-4 font-medium data-[state=active]:text-rose-600 data-[state=active]:border-b-2 data-[state=active]:border-rose-600"
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+        <DialogPanel className="w-full max-w-4xl bg-white rounded-xl shadow-xl h-[90vh] overflow-hidden flex flex-col">
+          <Tabs defaultValue="summary" className="w-full h-full flex flex-col">
+            <div className="flex-none border-b border-gray-200">
+              <div className="flex items-center justify-between px-6">
+                <TabsList className="border-none">
+                  {tabs.map(tab => (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="relative px-4 sm:px-8 py-4 font-medium text-gray-600 hover:text-gray-900 transition-colors data-[state=active]:text-rose-600 before:content-[''] before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-rose-600 before:opacity-0 data-[state=active]:before:opacity-100 before:transition-opacity"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                <button
+                  onClick={onClose}
+                  className="ml-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
-            {/* Content area with scrolling */}
-            <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
-              <TabsContent value="summary" className="mt-0">
-                <div className="space-y-6 sm:space-y-8 relative">
-                  {/* Loading Overlay */}
+            <div className="p-4 sm:p-6 flex-1 overflow-y-auto min-h-0">
+              <TabsContent value="summary" className="mt-0 h-full">
+                <div className="space-y-4 sm:space-y-6 relative min-h-0">
                   {loadingStates.summary && (
                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
                       <div className="flex flex-col items-center gap-3">
@@ -107,15 +110,6 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
                     </div>
                   )}
 
-                  {/* Close button - Adjusted positioning for mobile */}
-                  <button
-                    onClick={onClose}
-                    className="absolute right-2 top-2 sm:right-4 sm:top-4 text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={24} />
-                  </button>
-
-                  {/* Year Picker - Made responsive */}
                   <div className="flex justify-center mb-4 sm:mb-6">
                     <Listbox value={selectedYear} onChange={setSelectedYear}>
                       <div className="relative w-[120px] sm:w-[140px]">
@@ -164,7 +158,6 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
                     </Listbox>
                   </div>
 
-                  {/* Stats Components */}
                   <ActivitySummary totalPomodoros={statsData.totalPomodoros} />
                   <MonthlyStats monthlyPomodoros={statsData.monthlyPomodoros} />
                 </div>
