@@ -7,7 +7,7 @@ import { pomodoroService } from "@/services/api/pomodoro";
 
 export default function useTimer() {
   const [mode, setMode] = useState<TimerMode>("pomodoro");
-  const [timeLeft, setTimeLeft] = useState(TIMER_MODES["pomodoro"].time);
+  const [timeLeft, setTimeLeft] = useState(TIMER_MODES[mode].time);
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
 
@@ -16,8 +16,8 @@ export default function useTimer() {
   const endTimeRef = useRef<number | null>(null);
   const bellSoundRef = useRef<Howl | null>(null);
 
-  // Initialize state from localStorage
-  useEffect(() => {
+   // Initialize state from localStorage
+   useEffect(() => {
     const savedPomodoros = localStorage.getItem(STORAGE_KEYS.COMPLETED_POMODOROS);
     if (savedPomodoros) {
       setCompletedPomodoros(parseInt(savedPomodoros));
@@ -53,7 +53,10 @@ export default function useTimer() {
   const handleTimerComplete = useCallback(async () => {
     if (mode === "pomodoro") {
       try {
-        await pomodoroService.incrementSession();
+        // Update Pomodoro counts in database and send data to Make webhook
+        await Promise.all([
+          pomodoroService.incrementSession(),
+        ]);
       } catch (error) {
         console.error("Failed to update pomodoro session:", error);
       }
@@ -95,7 +98,7 @@ export default function useTimer() {
         } else {
           setTimeLeft(remaining);
         }
-      }, 100);
+      }, 100); // Update more frequently for smoother display
     }
 
     return () => {
@@ -104,10 +107,20 @@ export default function useTimer() {
         timerRef.current = null;
       }
     };
-  }, [isRunning, handleTimerComplete, timeLeft, initializeBellSound]);
+  }, [isRunning, handleTimerComplete, initializeBellSound]);
 
   const toggleTimer = useCallback(() => {
-    setIsRunning(!isRunning);
+    if (!isRunning) {
+      // Starting timer
+      setIsRunning(true);
+    } else {
+      // Pausing timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setIsRunning(false);
+    }
   }, [isRunning]);
 
   const handleSkip = () => {
