@@ -13,13 +13,13 @@ interface TimerDisplayProps {
   // onTest: () => void;
 }
 
-// const onTest = async () => {
-//   try {
-//     await pomodoroService.incrementSession();
-//   } catch(error) {
-//     console.error("Failed to update pomodoro session:", error);
-//   }
-// }
+const onTest = async () => {
+  try {
+    await pomodoroService.incrementSession();
+  } catch(error) {
+    console.error("Failed to update pomodoro session:", error);
+  }
+}
 
 export default function TimerDisplay({ timeLeft, isRunning, mode, onToggle, onSkip }: TimerDisplayProps) {
   return (
@@ -39,7 +39,7 @@ export default function TimerDisplay({ timeLeft, isRunning, mode, onToggle, onSk
           variant="secondary"
           className={`w-52 py-3 text-xl font-bold ${TIMER_MODES[mode].color}`}
           onClick={onTest}
-        >Test
+        >TEST
         </Button> */}
         {isRunning && (
           <Button

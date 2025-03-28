@@ -14,9 +14,31 @@ export default async function handler(
         const db = client.db("pomodoro_app");
         const userId = "anhtpq";
 
-        // Get today's date at midnight UTC
-        const today = new Date();
-        today.setUTCHours(0, 0, 0, 0);
+        // Get current time in local timezone
+        const now = new Date();
+        console.log("=== Time Debug Logs ===");
+        console.log("Current time:", now.toISOString());
+        console.log("Current local time:", now.toLocaleString());
+
+        // Get the local date string in YYYY-MM-DD format
+        const localDateString = now.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // Uses the system timezone
+        });
+
+        // Create UTC date from local date string
+        const [month, day, year] = localDateString.split("/");
+        const utcDate = new Date(Date.UTC(
+            parseInt(year),
+            parseInt(month) - 1, // Months are 0-based
+            parseInt(day)
+        ));
+
+        console.log("Local date string:", localDateString);
+        console.log("UTC date for storage:", utcDate.toISOString());
+        console.log("========================");
 
         // Find the most recent session
         const lastSession = await db.collection("pomodoroSessions").findOne(
@@ -28,20 +50,16 @@ export default async function handler(
 
         if (lastSession) {
             const lastDate = new Date(lastSession.date);
-            const dayDifference = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+            const dayDifference = Math.floor((utcDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
 
-            // If there's a gap of days, create documents for missing days
             if (dayDifference > 1) {
-                // Start from the day after the last session
                 const gapStartDate = new Date(lastDate);
-
-                // Create documents for each missing day
                 for (let i = 1; i < dayDifference; i++) {
                     gapStartDate.setUTCDate(gapStartDate.getUTCDate() + 1);
 
                     const gapDocument = {
                         userId,
-                        date: new Date(gapStartDate), // Create new Date object to avoid reference
+                        date: new Date(gapStartDate),
                         month: gapStartDate.getUTCMonth() + 1,
                         year: gapStartDate.getUTCFullYear(),
                         completedCount: 0,
@@ -58,55 +76,48 @@ export default async function handler(
             }
         }
 
-        // Check if today's document exists
+        // Check if today's document exists - use exact UTC midnight time
         const todaySession = await db.collection("pomodoroSessions").findOne({
             userId,
-            date: today
+            date: utcDate  // This will match exactly at UTC midnight
         });
 
         let result;
 
         if (!todaySession) {
-            // Create today's document
             const todayDocument = {
                 userId,
-                date: today,
-                month: today.getUTCMonth() + 1,
-                year: today.getUTCFullYear(),
+                date: utcDate,
+                month: utcDate.getUTCMonth() + 1,
+                year: utcDate.getUTCFullYear(),
                 completedCount: 1,
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
 
             if (bulkOps.length > 0) {
-                // Add today's document to bulk operations
                 bulkOps.push({
                     insertOne: {
                         document: todayDocument
                     }
                 });
-
-                // Execute all inserts in one bulk operation
                 result = await db.collection("pomodoroSessions").bulkWrite(bulkOps);
             } else {
-                // Just insert today's document
                 result = await db.collection("pomodoroSessions").insertOne(todayDocument);
             }
 
             return res.status(201).json({
                 message: "New pomodoro session(s) created successfully",
                 data: result,
-                gapsFilled: bulkOps.length - 1 // Exclude today's document
+                gapsFilled: bulkOps.length - 1
             });
         } else {
-            // If there were gap documents to insert, do that first
             if (bulkOps.length > 0) {
                 await db.collection("pomodoroSessions").bulkWrite(bulkOps);
             }
 
-            // Update today's document
             result = await db.collection("pomodoroSessions").updateOne(
-                { userId, date: today },
+                { userId, date: utcDate },
                 {
                     $inc: { completedCount: 1 },
                     $set: { updatedAt: new Date() }

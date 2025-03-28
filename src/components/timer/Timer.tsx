@@ -13,6 +13,7 @@ export default function Timer() {
     setMode,
     toggleTimer,
     handleSkip,
+    // onTest
   } = useTimer();
 
   useDocumentTitle(timeLeft, mode);
@@ -30,6 +31,7 @@ export default function Timer() {
             mode={mode}
             onToggle={toggleTimer}
             onSkip={handleSkip}
+            // onTest={onTest}
           />
         </div>
         <TimerStatus mode={mode} />
