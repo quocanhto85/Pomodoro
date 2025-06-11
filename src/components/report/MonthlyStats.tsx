@@ -7,7 +7,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  ChartOptions
+  ChartOptions,
+  TooltipItem
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
@@ -42,6 +43,9 @@ export function MonthlyStats({ monthlyPomodoros, isLoading = false }: MonthlySta
         data: monthlyHours,
         backgroundColor: "rgb(79, 70, 229)",
         borderRadius: 6,
+        hoverBackgroundColor: "rgb(99, 90, 255)",
+        barThickness: "flex" as const,
+        maxBarThickness: 60
       }
     ]
   };
@@ -61,25 +65,71 @@ export function MonthlyStats({ monthlyPomodoros, isLoading = false }: MonthlySta
         }
       },
       tooltip: {
+        enabled: true,
+        mode: "index", // This makes the tooltip trigger across the entire x-axis at that index
+        intersect: false, // This makes the tooltip show when hovering anywhere in the bar's x-axis range
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "rgba(255, 255, 255, 0.9)",
+        bodyColor: "rgba(255, 255, 255, 0.9)",
+        borderColor: "#555",
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 4,
+        displayColors: false,
+        titleFont: {
+          size: 14,
+          weight: "bold"
+        },
+        bodyFont: {
+          size: 14
+        },
         callbacks: {
+          title: (tooltipItems: TooltipItem<"bar">[]) => {
+            return tooltipItems[0].label;
+          },
           label: (context) => {
             const hours = context.parsed.y;
             return `${hours} hours`;
+          },
+          labelTextColor: () => {
+            return "#fff";
           }
         }
       }
     },
+    interaction: {
+      mode: 'index', // Matches the tooltip mode
+      intersect: false, // Makes interaction work across the entire column area
+    },
+    hover: {
+      mode: 'index',
+      intersect: false,
+    },
     scales: {
+      x: {
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)'
+        }
+      },
       y: {
         beginAtZero: true,
         title: {
           display: true,
           text: "Hours"
         },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)'
+        },
         ticks: {
-          callback: (value) => `${value}`
+          callback: (value) => `${value}`,
+          color: '#666'
         }
       }
+    },
+    animation: {
+      duration: 500,
+      easing: 'easeOutQuart'
     }
   };
 
