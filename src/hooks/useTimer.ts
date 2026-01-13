@@ -20,10 +20,8 @@ export default function useTimer() {
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number | null>(null);
   const endTimeRef = useRef<number | null>(null);
   const bellSoundRef = useRef<Howl | null>(null);
-  const lastTickRef = useRef<number | null>(null);
 
   // Initialize state from localStorage
   useEffect(() => {
@@ -52,9 +50,7 @@ export default function useTimer() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    startTimeRef.current = null;
     endTimeRef.current = null;
-    lastTickRef.current = null;
   }, []);
 
   const switchMode = useCallback((newMode: TimerMode) => {
@@ -91,33 +87,52 @@ export default function useTimer() {
     }
   }, [mode, completedPomodoros, switchMode]);
 
+  // Handle visibility change to sync timer when tab becomes active
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isRunning && endTimeRef.current) {
+        log("Tab became visible, syncing timer");
+        const now = Date.now();
+        const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
+        
+        if (remaining <= 0) {
+          cleanupTimer();
+          setTimeLeft(0);
+          setIsRunning(false);
+          initializeBellSound();
+          bellSoundRef.current?.play();
+          handleTimerComplete();
+        } else {
+          setTimeLeft(remaining);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRunning, handleTimerComplete, initializeBellSound, cleanupTimer]);
+
   // Main timer effect
   useEffect(() => {
     if (isRunning) {
-      const now = Date.now();
-      startTimeRef.current = now;
-      endTimeRef.current = now + timeLeft * 1000;
-      lastTickRef.current = now;
+      // Set the end time when timer starts
+      if (!endTimeRef.current) {
+        endTimeRef.current = Date.now() + (timeLeft * 1000);
+        log("Timer started", { 
+          mode, 
+          timeLeft, 
+          endTime: new Date(endTimeRef.current).toISOString()
+        });
+      }
 
       intervalRef.current = setInterval(() => {
-        const currentTime = Date.now();
+        const now = Date.now();
         
-        if (!endTimeRef.current || !lastTickRef.current) return;
+        if (!endTimeRef.current) return;
 
-        // Check for large time gaps (potential browser throttling)
-        const timeSinceLastTick = currentTime - lastTickRef.current;
-        if (timeSinceLastTick > 2000) {
-          log("Large time gap detected", { 
-            gap: timeSinceLastTick,
-            mode,
-            currentTime
-          });
-        }
-
-        lastTickRef.current = currentTime;
-
-        // Calculate remaining time with drift compensation
-        const remaining = Math.max(0, Math.ceil((endTimeRef.current - currentTime) / 1000));
+        const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
         
         if (remaining <= 0) {
           cleanupTimer();
@@ -132,21 +147,32 @@ export default function useTimer() {
       }, 100);
 
       return () => cleanupTimer();
+    } else {
+      // Reset end time when stopped
+      endTimeRef.current = null;
     }
   }, [isRunning, handleTimerComplete, initializeBellSound, cleanupTimer, mode]);
 
   const toggleTimer = useCallback(() => {
     if (!isRunning) {
-      log("Timer started", { mode, timeLeft, currentTime: Date.now() });
+      log("Timer starting", { mode, timeLeft });
       setIsRunning(true);
     } else {
-      log("Timer paused", { mode, timeLeft, currentTime: Date.now() });
+      log("Timer paused", { mode, timeLeft });
+      
+      // When pausing, calculate the actual remaining time and reset endTime
+      if (endTimeRef.current) {
+        const now = Date.now();
+        const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
+        setTimeLeft(remaining);
+      }
+      
       cleanupTimer();
       setIsRunning(false);
     }
   }, [isRunning, timeLeft, mode, cleanupTimer]);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     log("Timer skipped", { mode, timeLeft });
     cleanupTimer();
     
@@ -162,14 +188,14 @@ export default function useTimer() {
     } else {
       switchMode("pomodoro");
     }
-  };
+  }, [mode, timeLeft, cleanupTimer, completedPomodoros, switchMode]);
 
   return {
     mode,
     timeLeft,
     isRunning,
     completedPomodoros,
-    setMode: switchMode, // Replace setMode with switchMode for proper cleanup
+    setMode: switchMode,
     toggleTimer,
     handleSkip,
   };
