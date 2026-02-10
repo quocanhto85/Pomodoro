@@ -1,11 +1,28 @@
 "use client";
 
-import { TIMER_MODES } from "@/helpers/constants";
+import { useState, useEffect } from "react";
+import { TIMER_MODES, STORAGE_KEYS, DEFAULT_SUBJECT } from "@/helpers/constants";
 import { useTimer, useDocumentTitle } from "@/hooks";
 import { Header, FaviconUpdater } from "@/components/common";
 import { TimerDisplay, TimerStatus, TimerTabs } from "@/components/timer";
+import SubjectSelector from "@/components/timer/SubjectSelector";
 
 export default function Timer() {
+  const [activeSubject, setActiveSubject] = useState(DEFAULT_SUBJECT);
+
+  // Load active subject from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_SUBJECT);
+    if (saved) {
+      setActiveSubject(saved);
+    }
+  }, []);
+
+  // Save active subject to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_SUBJECT, activeSubject);
+  }, [activeSubject]);
+
   const {
     mode,
     timeLeft,
@@ -13,8 +30,7 @@ export default function Timer() {
     setMode,
     toggleTimer,
     handleSkip,
-    // onTest
-  } = useTimer();
+  } = useTimer(activeSubject);
 
   useDocumentTitle(timeLeft, mode);
 
@@ -31,7 +47,10 @@ export default function Timer() {
             mode={mode}
             onToggle={toggleTimer}
             onSkip={handleSkip}
-            // onTest={onTest}
+          />
+          <SubjectSelector
+            activeSubject={activeSubject}
+            onSubjectChange={setActiveSubject}
           />
         </div>
         <TimerStatus mode={mode} />

@@ -13,7 +13,7 @@ const log = (...args: any[]) => {
   }
 };
 
-export default function useTimer() {
+export default function useTimer(activeSubject: string) {
   const [mode, setMode] = useState<TimerMode>("pomodoro");
   const [timeLeft, setTimeLeft] = useState(TIMER_MODES[mode].time);
   const [isRunning, setIsRunning] = useState(false);
@@ -22,6 +22,13 @@ export default function useTimer() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const endTimeRef = useRef<number | null>(null);
   const bellSoundRef = useRef<Howl | null>(null);
+
+  // Use a ref for activeSubject so it doesn't affect callback dependencies
+  // but always captures the latest value when the timer completes
+  const activeSubjectRef = useRef(activeSubject);
+  useEffect(() => {
+    activeSubjectRef.current = activeSubject;
+  }, [activeSubject]);
 
   // Initialize state from localStorage
   useEffect(() => {
@@ -62,12 +69,12 @@ export default function useTimer() {
   }, [mode, cleanupTimer]);
 
   const handleTimerComplete = useCallback(async () => {
-    log("Timer completed", { mode, completedPomodoros });
+    log("Timer completed", { mode, completedPomodoros, subject: activeSubjectRef.current });
     
     if (mode === "pomodoro") {
       try {
         await Promise.all([
-          pomodoroService.incrementSession(),
+          pomodoroService.incrementSession(activeSubjectRef.current),
         ]);
       } catch (error) {
         console.error("Failed to update pomodoro session:", error);
@@ -123,6 +130,7 @@ export default function useTimer() {
         log("Timer started", { 
           mode, 
           timeLeft, 
+          subject: activeSubjectRef.current,
           endTime: new Date(endTimeRef.current).toISOString()
         });
       }
@@ -155,7 +163,7 @@ export default function useTimer() {
 
   const toggleTimer = useCallback(() => {
     if (!isRunning) {
-      log("Timer starting", { mode, timeLeft });
+      log("Timer starting", { mode, timeLeft, subject: activeSubjectRef.current });
       setIsRunning(true);
     } else {
       log("Timer paused", { mode, timeLeft });

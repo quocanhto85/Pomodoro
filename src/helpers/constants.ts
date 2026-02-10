@@ -18,7 +18,11 @@ export const TIMER_MODES = {
 
 export const STORAGE_KEYS = {
   COMPLETED_POMODOROS: "completedPomodoros",
+  ACTIVE_SUBJECT: "activeSubject",
+  SAVED_SUBJECTS: "savedSubjects",
 } as const;
+
+export const DEFAULT_SUBJECT = "General";
 
 export const POMODOROS_BEFORE_LONG_BREAK = 4;
 

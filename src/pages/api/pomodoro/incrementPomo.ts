@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "@/db/mongodb/client";
 
+const DEFAULT_SUBJECT = "General";
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -14,33 +16,29 @@ export default async function handler(
         const db = client.db("pomodoro_app");
         const userId = "anhtpq";
 
+        // Get subject from request body, default to "General"
+        const subject = (req.body.subject as string)?.trim() || DEFAULT_SUBJECT;
+
         // Get current time in local timezone
         const now = new Date();
-        console.log("=== Time Debug Logs ===");
-        console.log("Current time:", now.toISOString());
-        console.log("Current local time:", now.toLocaleString());
 
         // Get the local date string in YYYY-MM-DD format
         const localDateString = now.toLocaleDateString("en-US", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // Uses the system timezone
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
         });
 
         // Create UTC date from local date string
         const [month, day, year] = localDateString.split("/");
         const utcDate = new Date(Date.UTC(
             parseInt(year),
-            parseInt(month) - 1, // Months are 0-based
+            parseInt(month) - 1,
             parseInt(day)
         ));
 
-        console.log("Local date string:", localDateString);
-        console.log("UTC date for storage:", utcDate.toISOString());
-        console.log("========================");
-
-        // Find the most recent session
+        // Find the most recent session (any subject) to determine gaps
         const lastSession = await db.collection("pomodoroSessions").findOne(
             { userId },
             { sort: { date: -1 } }
@@ -57,79 +55,69 @@ export default async function handler(
                 for (let i = 1; i < dayDifference; i++) {
                     gapStartDate.setUTCDate(gapStartDate.getUTCDate() + 1);
 
-                    const gapDocument = {
-                        userId,
-                        date: new Date(gapStartDate),
-                        month: gapStartDate.getUTCMonth() + 1,
-                        year: gapStartDate.getUTCFullYear(),
-                        completedCount: 0,
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    };
-
+                    // Use upsert to avoid duplicate key errors for gap documents
                     bulkOps.push({
-                        insertOne: {
-                            document: gapDocument
+                        updateOne: {
+                            filter: {
+                                userId,
+                                date: new Date(gapStartDate),
+                                subject: DEFAULT_SUBJECT
+                            },
+                            update: {
+                                $setOnInsert: {
+                                    userId,
+                                    date: new Date(gapStartDate),
+                                    month: gapStartDate.getUTCMonth() + 1,
+                                    year: gapStartDate.getUTCFullYear(),
+                                    completedCount: 0,
+                                    subject: DEFAULT_SUBJECT,
+                                    createdAt: new Date(),
+                                    updatedAt: new Date()
+                                }
+                            },
+                            upsert: true
                         }
                     });
                 }
             }
         }
 
-        // Check if today's document exists - use exact UTC midnight time
-        const todaySession = await db.collection("pomodoroSessions").findOne({
-            userId,
-            date: utcDate  // This will match exactly at UTC midnight
-        });
+        // Execute gap-fill operations if any
+        if (bulkOps.length > 0) {
+            await db.collection("pomodoroSessions").bulkWrite(bulkOps);
+        }
 
-        let result;
-
-        if (!todaySession) {
-            const todayDocument = {
+        // Upsert today's document for this specific subject
+        const result = await db.collection("pomodoroSessions").updateOne(
+            {
                 userId,
                 date: utcDate,
-                month: utcDate.getUTCMonth() + 1,
-                year: utcDate.getUTCFullYear(),
-                completedCount: 1,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-
-            if (bulkOps.length > 0) {
-                bulkOps.push({
-                    insertOne: {
-                        document: todayDocument
-                    }
-                });
-                result = await db.collection("pomodoroSessions").bulkWrite(bulkOps);
-            } else {
-                result = await db.collection("pomodoroSessions").insertOne(todayDocument);
-            }
-
-            return res.status(201).json({
-                message: "New pomodoro session(s) created successfully",
-                data: result,
-                gapsFilled: bulkOps.length - 1
-            });
-        } else {
-            if (bulkOps.length > 0) {
-                await db.collection("pomodoroSessions").bulkWrite(bulkOps);
-            }
-
-            result = await db.collection("pomodoroSessions").updateOne(
-                { userId, date: utcDate },
-                {
-                    $inc: { completedCount: 1 },
-                    $set: { updatedAt: new Date() }
+                subject: subject
+            },
+            {
+                $inc: { completedCount: 1 },
+                $set: { updatedAt: new Date() },
+                $setOnInsert: {
+                    userId,
+                    date: utcDate,
+                    month: utcDate.getUTCMonth() + 1,
+                    year: utcDate.getUTCFullYear(),
+                    subject: subject,
+                    createdAt: new Date()
                 }
-            );
+            },
+            { upsert: true }
+        );
 
-            return res.status(200).json({
-                message: "Pomodoro session updated successfully",
-                data: result,
-                gapsFilled: bulkOps.length
-            });
-        }
+        const isNew = result.upsertedCount > 0;
+
+        return res.status(isNew ? 201 : 200).json({
+            message: isNew
+                ? "New pomodoro session created successfully"
+                : "Pomodoro session updated successfully",
+            data: result,
+            subject: subject
+        });
     } catch (error) {
         console.error("Error handling pomodoro session:", error);
         return res.status(500).json({ message: "Internal server error" });

@@ -12,7 +12,7 @@ export default async function handler(
     try {
       const client = await clientPromise;
       const db = client.db("pomodoro_app");
-      const userId = "anhtpq"; // Might get this from authentication
+      const userId = "anhtpq";
   
       const { month, year } = req.query;
   
@@ -33,7 +33,7 @@ export default async function handler(
           month: monthNum,
           year: yearNum
         })
-        .sort({ date: 1 })
+        .sort({ date: 1, subject: 1 })
         .toArray();
   
       return res.status(200).json({

@@ -17,6 +17,7 @@ import { store } from "@/store/store";
 import { useState, useEffect, Fragment } from "react";
 import { pomodoroService } from "@/services/api/pomodoro";
 import { showErrorToast } from "@/components/common";
+import { StatsData, MonthlySubjectData } from "@/types/stats";
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -36,9 +37,11 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
     detail: false,
     ranking: false
   });
-  const [statsData, setStatsData] = useState({
+  const [statsData, setStatsData] = useState<StatsData>({
     totalPomodoros: 0,
-    monthlyPomodoros: Array(12).fill(0)
+    monthlyPomodoros: Array(12).fill(0),
+    subjects: [],
+    monthlyBySubject: {}
   });
 
   const years = Array.from(
@@ -53,7 +56,9 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
         const response = await pomodoroService.fetchStats(selectedYear);
         setStatsData({
           totalPomodoros: response.totalPomodoros,
-          monthlyPomodoros: response.monthlyPomodoros
+          monthlyPomodoros: response.monthlyPomodoros,
+          subjects: response.subjects || [],
+          monthlyBySubject: (response.monthlyBySubject || {}) as MonthlySubjectData
         });
       } catch (error) {
         console.error("Error fetching statistics:", error);
@@ -159,7 +164,11 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
                   </div>
 
                   <ActivitySummary totalPomodoros={statsData.totalPomodoros} />
-                  <MonthlyStats monthlyPomodoros={statsData.monthlyPomodoros} />
+                  <MonthlyStats
+                    monthlyPomodoros={statsData.monthlyPomodoros}
+                    subjects={statsData.subjects}
+                    monthlyBySubject={statsData.monthlyBySubject}
+                  />
                 </div>
               </TabsContent>
 

@@ -12,14 +12,15 @@ const PomodoroSessionSchema = new mongoose.Schema({
   month: { type: Number, required: true, min: 1, max: 12, index: true },
   year: { type: Number, required: true, index: true },
   completedCount: { type: Number, default: 0 },
+  subject: { type: String, default: "General" },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 }, {
   timestamps: true // Automatically manages createdAt and updatedAt
 });
 
-// Create compound index for efficient queries
-PomodoroSessionSchema.index({ userId: 1, date: 1 }, { unique: true });
+// Compound index: one document per user per day per subject
+PomodoroSessionSchema.index({ userId: 1, date: 1, subject: 1 }, { unique: true });
 
 // Virtual property for hours (not stored in DB, calculated on-the-fly)
 PomodoroSessionSchema.virtual("hours").get(function () {
