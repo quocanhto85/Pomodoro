@@ -128,13 +128,15 @@ export function MonthlyStats({
             const hours = context.parsed.y;
             if (hours === 0) return "";
             const datasetLabel = context.dataset.label || "";
-            return `  ${datasetLabel}: ${hours} hours`;
+            const pomodoros = Math.round((hours * 60) / 25);
+            return `  ${datasetLabel}: ${hours} hrs (${pomodoros} pomos)`;
           },
           afterBody: (tooltipItems: TooltipItem<"bar">[]) => {
             if (!hasSubjectData) return "";
             const total = tooltipItems.reduce((sum, item) => sum + (item.parsed.y || 0), 0);
             if (total === 0) return "";
-            return `\n  Total: ${total.toFixed(2)} hours`;
+            const totalPomos = Math.round((total * 60) / 25);
+            return `\n  Total: ${total.toFixed(2)} hrs (${totalPomos} pomos)`;
           },
           labelColor: (context) => {
             return {
