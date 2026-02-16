@@ -7,11 +7,26 @@ import { pomodoroService } from "@/services/api/pomodoro";
 
 // Debug logger
 const DEBUG = true;
-const log = (...args: any[]) => {
+const log = (...args: unknown[]) => {
   if (DEBUG) {
     console.log(`[Timer ${new Date().toISOString()}]`, ...args);
   }
 };
+
+/**
+ * Creates a Web Worker from a static file in public/.
+ * Web Workers run in a separate thread and are NOT throttled by the browser,
+ * unlike setInterval which gets throttled to 1s or even 60s in background tabs.
+ */
+function createTickWorker(): Worker | null {
+  try {
+    // Dynamic URL prevents Turbopack from trying to statically analyze the Worker
+    const url = ["/timer-worker", ".js"].join("");
+    return new globalThis.Worker(url);
+  } catch {
+    return null;
+  }
+}
 
 export default function useTimer(activeSubject: string) {
   const [mode, setMode] = useState<TimerMode>("pomodoro");
@@ -19,12 +34,12 @@ export default function useTimer(activeSubject: string) {
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const endTimeRef = useRef<number | null>(null);
   const bellSoundRef = useRef<Howl | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const fallbackIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use a ref for activeSubject so it doesn't affect callback dependencies
-  // but always captures the latest value when the timer completes
   const activeSubjectRef = useRef(activeSubject);
   useEffect(() => {
     activeSubjectRef.current = activeSubject;
@@ -52,13 +67,20 @@ export default function useTimer(activeSubject: string) {
     }
   }, []);
 
-  const cleanupTimer = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+  const stopTicking = useCallback(() => {
+    if (workerRef.current) {
+      workerRef.current.postMessage("stop");
     }
-    endTimeRef.current = null;
+    if (fallbackIntervalRef.current) {
+      clearInterval(fallbackIntervalRef.current);
+      fallbackIntervalRef.current = null;
+    }
   }, []);
+
+  const cleanupTimer = useCallback(() => {
+    stopTicking();
+    endTimeRef.current = null;
+  }, [stopTicking]);
 
   const switchMode = useCallback((newMode: TimerMode) => {
     log("Switching mode", { from: mode, to: newMode });
@@ -83,7 +105,6 @@ export default function useTimer(activeSubject: string) {
       const newCompletedPomodoros = completedPomodoros + 1;
       setCompletedPomodoros(newCompletedPomodoros);
 
-      // Determine next mode
       const nextMode = newCompletedPomodoros % POMODOROS_BEFORE_LONG_BREAK === 0 
         ? "longbreak" 
         : "shortbreak";
@@ -94,72 +115,92 @@ export default function useTimer(activeSubject: string) {
     }
   }, [mode, completedPomodoros, switchMode]);
 
+  // The core tick function — called by both the worker and the fallback interval
+  const tick = useCallback(() => {
+    if (!endTimeRef.current) return;
+
+    const now = Date.now();
+    const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
+
+    if (remaining <= 0) {
+      cleanupTimer();
+      setTimeLeft(0);
+      setIsRunning(false);
+      initializeBellSound();
+      bellSoundRef.current?.play();
+      handleTimerComplete();
+    } else {
+      setTimeLeft(remaining);
+    }
+  }, [cleanupTimer, initializeBellSound, handleTimerComplete]);
+
+  // Create the Web Worker once on mount, tear it down on unmount
+  useEffect(() => {
+    const worker = createTickWorker();
+    if (worker) {
+      workerRef.current = worker;
+    }
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Wire the worker's "tick" messages to our tick function
+  useEffect(() => {
+    const worker = workerRef.current;
+    if (!worker) return;
+
+    const onMessage = (e: MessageEvent) => {
+      if (e.data === "tick") tick();
+    };
+    worker.addEventListener("message", onMessage);
+    return () => worker.removeEventListener("message", onMessage);
+  }, [tick]);
+
   // Handle visibility change to sync timer when tab becomes active
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isRunning && endTimeRef.current) {
         log("Tab became visible, syncing timer");
-        const now = Date.now();
-        const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
-        
-        if (remaining <= 0) {
-          cleanupTimer();
-          setTimeLeft(0);
-          setIsRunning(false);
-          initializeBellSound();
-          bellSoundRef.current?.play();
-          handleTimerComplete();
-        } else {
-          setTimeLeft(remaining);
-        }
+        tick();
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isRunning, handleTimerComplete, initializeBellSound, cleanupTimer]);
+  }, [isRunning, tick]);
 
-  // Main timer effect
+  // Main timer effect — start/stop the tick source
   useEffect(() => {
     if (isRunning) {
-      // Set the end time when timer starts
       if (!endTimeRef.current) {
         endTimeRef.current = Date.now() + (timeLeft * 1000);
-        log("Timer started", { 
-          mode, 
-          timeLeft, 
+        log("Timer started", {
+          mode,
+          timeLeft,
           subject: activeSubjectRef.current,
           endTime: new Date(endTimeRef.current).toISOString()
         });
       }
 
-      intervalRef.current = setInterval(() => {
-        const now = Date.now();
-        
-        if (!endTimeRef.current) return;
+      // Start the Web Worker tick
+      if (workerRef.current) {
+        workerRef.current.postMessage("start");
+      }
 
-        const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
-        
-        if (remaining <= 0) {
-          cleanupTimer();
-          setTimeLeft(0);
-          setIsRunning(false);
-          initializeBellSound();
-          bellSoundRef.current?.play();
-          handleTimerComplete();
-        } else {
-          setTimeLeft(remaining);
-        }
-      }, 100);
+      // Fallback setInterval in case the Worker couldn't be created
+      fallbackIntervalRef.current = setInterval(tick, 1000);
 
-      return () => cleanupTimer();
+      return () => stopTicking();
     } else {
-      // Reset end time when stopped
       endTimeRef.current = null;
     }
-  }, [isRunning, handleTimerComplete, initializeBellSound, cleanupTimer, mode]);
+  }, [isRunning, tick, stopTicking, mode]);
 
   const toggleTimer = useCallback(() => {
     if (!isRunning) {
@@ -168,7 +209,6 @@ export default function useTimer(activeSubject: string) {
     } else {
       log("Timer paused", { mode, timeLeft });
       
-      // When pausing, calculate the actual remaining time and reset endTime
       if (endTimeRef.current) {
         const now = Date.now();
         const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
