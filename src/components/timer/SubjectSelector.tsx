@@ -28,7 +28,7 @@ export default function SubjectSelector({ activeSubject, onSubjectChange }: Subj
     const loadSubjects = async () => {
       // First, load from localStorage for instant display
       const stored = localStorage.getItem(STORAGE_KEYS.SAVED_SUBJECTS);
-      let localSubjects: string[] = stored ? JSON.parse(stored) : [];
+      const localSubjects: string[] = stored ? JSON.parse(stored) : [];
 
       // Then fetch from DB to ensure we have the latest
       try {
