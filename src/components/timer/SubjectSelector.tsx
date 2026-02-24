@@ -6,6 +6,9 @@ import { BookOpen, Plus, X, Check, Pencil } from "lucide-react";
 import { STORAGE_KEYS, DEFAULT_SUBJECT } from "@/helpers/constants";
 import { pomodoroService } from "@/services/api/pomodoro";
 
+/** Strip whitespace and lowercase for duplicate detection (e.g. "🧬AI" vs "🧬 AI"). */
+const normalizeSubject = (s: string) => s.replace(/\s+/g, "").toLowerCase();
+
 interface SubjectSelectorProps {
   activeSubject: string;
   onSubjectChange: (subject: string) => void;
@@ -34,8 +37,13 @@ export default function SubjectSelector({ activeSubject, onSubjectChange }: Subj
           .map((s: { name: string }) => s.name)
           .filter((name: string) => name !== DEFAULT_SUBJECT);
 
-        // Merge: keep all local subjects + add any from DB that aren't local
-        const merged = [...new Set([...localSubjects, ...dbSubjects])];
+        // Merge: deduplicate by normalized name (handles "🧬AI" vs "🧬 AI")
+        const seen = new Map<string, string>();
+        for (const s of [...localSubjects, ...dbSubjects]) {
+          const key = normalizeSubject(s);
+          if (!seen.has(key)) seen.set(key, s);
+        }
+        const merged = [...seen.values()];
         setSavedSubjects(merged);
         localStorage.setItem(STORAGE_KEYS.SAVED_SUBJECTS, JSON.stringify(merged));
       } catch {
@@ -67,7 +75,8 @@ export default function SubjectSelector({ activeSubject, onSubjectChange }: Subj
 
     // Add to saved subjects if not already there
     setSavedSubjects(prev => {
-      if (prev.includes(trimmed)) return prev;
+      const norm = normalizeSubject(trimmed);
+      if (prev.some(s => normalizeSubject(s) === norm)) return prev;
       const updated = [trimmed, ...prev];
       localStorage.setItem(STORAGE_KEYS.SAVED_SUBJECTS, JSON.stringify(updated));
       return updated;
@@ -119,8 +128,9 @@ export default function SubjectSelector({ activeSubject, onSubjectChange }: Subj
     }
 
     setSavedSubjects(prev => {
-      // If the new name already exists, just remove the old one
-      if (prev.includes(trimmed)) {
+      // If the new name already exists (normalized), just remove the old one
+      const norm = normalizeSubject(trimmed);
+      if (prev.some(s => s !== editingSubject && normalizeSubject(s) === norm)) {
         const updated = prev.filter(s => s !== editingSubject);
         localStorage.setItem(STORAGE_KEYS.SAVED_SUBJECTS, JSON.stringify(updated));
         return updated;
