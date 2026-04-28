@@ -238,6 +238,11 @@ export default function useTimer(activeSubject: string) {
     }
   }, [mode, timeLeft, cleanupTimer, completedPomodoros, switchMode]);
 
+  const resetCompletedPomodoros = useCallback(() => {
+    log("Pomodoro session counter reset");
+    setCompletedPomodoros(0);
+  }, []);
+
   return {
     mode,
     timeLeft,
@@ -246,5 +251,6 @@ export default function useTimer(activeSubject: string) {
     setMode: switchMode,
     toggleTimer,
     handleSkip,
+    resetCompletedPomodoros,
   };
 }
