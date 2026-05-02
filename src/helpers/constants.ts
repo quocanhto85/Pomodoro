@@ -20,11 +20,18 @@ export const STORAGE_KEYS = {
   COMPLETED_POMODOROS: "completedPomodoros",
   ACTIVE_SUBJECT: "activeSubject",
   SAVED_SUBJECTS: "savedSubjects",
+  FOCUS_DURATION: "focusDuration",
 } as const;
 
 export const DEFAULT_SUBJECT = "General";
 
 export const POMODOROS_BEFORE_LONG_BREAK = 4;
+export const FOCUS_DURATIONS = {
+  TRADITIONAL: 25,
+  EXTENDED: 50,
+} as const;
+
+export type FocusDuration = typeof FOCUS_DURATIONS[keyof typeof FOCUS_DURATIONS];
 
 export type TimerMode = keyof typeof TIMER_MODES;
 

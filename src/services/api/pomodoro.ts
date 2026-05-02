@@ -1,10 +1,11 @@
 import axios from "axios";
 
 export const pomodoroService = {
-  incrementSession: async (subject?: string) => {
+  incrementSession: async (subject?: string, count = 1) => {
     try {
       const response = await axios.post("/api/pomodoro/incrementPomo", {
-        subject: subject || undefined
+        subject: subject || undefined,
+        count,
       });
       return response.data;
     } catch (error) {

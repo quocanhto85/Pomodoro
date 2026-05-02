@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { TimerMode, TIMER_MODES, POMODOROS_BEFORE_LONG_BREAK, STORAGE_KEYS } from "@/helpers/constants";
+import {
+  TimerMode,
+  TIMER_MODES,
+  POMODOROS_BEFORE_LONG_BREAK,
+  FocusDuration,
+  STORAGE_KEYS,
+} from "@/helpers/constants";
 import { Howl } from "howler";
 import { pomodoroService } from "@/services/api/pomodoro";
 
@@ -28,11 +34,14 @@ function createTickWorker(): Worker | null {
   }
 }
 
-export default function useTimer(activeSubject: string) {
+export default function useTimer(activeSubject: string, focusDuration: FocusDuration) {
   const [mode, setMode] = useState<TimerMode>("pomodoro");
-  const [timeLeft, setTimeLeft] = useState(TIMER_MODES[mode].time);
+  const [timeLeft, setTimeLeft] = useState(focusDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
+  const completedCountPerFocusSession = focusDuration === 50 ? 2 : 1;
+  const focusSessionsPerCycle = POMODOROS_BEFORE_LONG_BREAK / completedCountPerFocusSession;
+
 
   const endTimeRef = useRef<number | null>(null);
   const bellSoundRef = useRef<Howl | null>(null);
@@ -86,9 +95,17 @@ export default function useTimer(activeSubject: string) {
     log("Switching mode", { from: mode, to: newMode });
     cleanupTimer();
     setMode(newMode);
-    setTimeLeft(TIMER_MODES[newMode].time);
+    setTimeLeft(newMode === "pomodoro" ? focusDuration * 60 : TIMER_MODES[newMode].time);
     setIsRunning(false);
-  }, [mode, cleanupTimer]);
+  }, [mode, cleanupTimer, focusDuration]);
+
+  useEffect(() => {
+    if (mode === "pomodoro") {
+      cleanupTimer();
+      setIsRunning(false);
+      setTimeLeft(focusDuration * 60);
+    }
+  }, [focusDuration, mode, cleanupTimer]);
 
   const handleTimerComplete = useCallback(async () => {
     log("Timer completed", { mode, completedPomodoros, subject: activeSubjectRef.current });
@@ -96,13 +113,13 @@ export default function useTimer(activeSubject: string) {
     if (mode === "pomodoro") {
       try {
         await Promise.all([
-          pomodoroService.incrementSession(activeSubjectRef.current),
+          pomodoroService.incrementSession(activeSubjectRef.current, completedCountPerFocusSession),
         ]);
       } catch (error) {
         console.error("Failed to update pomodoro session:", error);
       }
 
-      const newCompletedPomodoros = completedPomodoros + 1;
+      const newCompletedPomodoros = completedPomodoros + completedCountPerFocusSession;
       setCompletedPomodoros(newCompletedPomodoros);
 
       const nextMode = newCompletedPomodoros % POMODOROS_BEFORE_LONG_BREAK === 0 
@@ -113,7 +130,7 @@ export default function useTimer(activeSubject: string) {
     } else {
       switchMode("pomodoro");
     }
-  }, [mode, completedPomodoros, switchMode]);
+  }, [mode, completedPomodoros, switchMode, completedCountPerFocusSession]);
 
   // The core tick function — called by both the worker and the fallback interval
   const tick = useCallback(() => {
@@ -225,7 +242,7 @@ export default function useTimer(activeSubject: string) {
     cleanupTimer();
     
     if (mode === "pomodoro") {
-      const nextPomodoros = completedPomodoros + 1;
+      const nextPomodoros = completedPomodoros + completedCountPerFocusSession;
       setCompletedPomodoros(nextPomodoros);
       
       const nextMode = nextPomodoros % POMODOROS_BEFORE_LONG_BREAK === 0 
@@ -236,7 +253,7 @@ export default function useTimer(activeSubject: string) {
     } else {
       switchMode("pomodoro");
     }
-  }, [mode, timeLeft, cleanupTimer, completedPomodoros, switchMode]);
+  }, [mode, timeLeft, cleanupTimer, completedPomodoros, switchMode, completedCountPerFocusSession]);
 
   const resetCompletedPomodoros = useCallback(() => {
     log("Pomodoro session counter reset");
@@ -248,6 +265,8 @@ export default function useTimer(activeSubject: string) {
     timeLeft,
     isRunning,
     completedPomodoros,
+    focusSessionsPerCycle,
+    completedCountPerFocusSession,
     setMode: switchMode,
     toggleTimer,
     handleSkip,

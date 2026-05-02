@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import {
+  FOCUS_DURATIONS,
+  FocusDuration,
+  POMODOROS_BEFORE_LONG_BREAK,
   TIMER_MODES,
   STORAGE_KEYS,
   DEFAULT_SUBJECT,
-  POMODOROS_BEFORE_LONG_BREAK,
 } from "@/helpers/constants";
 import { useTimer, useDocumentTitle } from "@/hooks";
 import { Header, FaviconUpdater } from "@/components/common";
@@ -26,12 +28,18 @@ import {
 
 export default function Timer() {
   const [activeSubject, setActiveSubject] = useState(DEFAULT_SUBJECT);
+  const [focusDuration, setFocusDuration] = useState<FocusDuration>(FOCUS_DURATIONS.TRADITIONAL);
 
   // Load active subject from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_SUBJECT);
     if (saved) {
       setActiveSubject(saved);
+    }
+
+    const savedDuration = Number(localStorage.getItem(STORAGE_KEYS.FOCUS_DURATION));
+    if (savedDuration === FOCUS_DURATIONS.TRADITIONAL || savedDuration === FOCUS_DURATIONS.EXTENDED) {
+      setFocusDuration(savedDuration);
     }
   }, []);
 
@@ -40,16 +48,25 @@ export default function Timer() {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_SUBJECT, activeSubject);
   }, [activeSubject]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.FOCUS_DURATION, focusDuration.toString());
+  }, [focusDuration]);
+
   const {
     mode,
     timeLeft,
     isRunning,
     completedPomodoros,
+    focusSessionsPerCycle,
+    completedCountPerFocusSession,
     setMode,
     toggleTimer,
     handleSkip,
     resetCompletedPomodoros,
-  } = useTimer(activeSubject);
+  } = useTimer(activeSubject, focusDuration);
+  const completedFocusSessions = Math.floor(
+    (completedPomodoros % POMODOROS_BEFORE_LONG_BREAK) / completedCountPerFocusSession
+  );
 
   useDocumentTitle(timeLeft, mode);
 
@@ -60,6 +77,25 @@ export default function Timer() {
       <main className="container mx-auto px-4 pt-8">
         <div className="max-w-2xl mx-auto bg-white/10 rounded-lg p-6">
           <TimerTabs currentMode={mode} onModeChange={setMode} />
+          <div className="mb-5 flex justify-center">
+            <div className="inline-flex rounded-lg border border-white/25 bg-white/10 p-1">
+              {[FOCUS_DURATIONS.TRADITIONAL, FOCUS_DURATIONS.EXTENDED].map((duration) => (
+                <button
+                  key={duration}
+                  type="button"
+                  onClick={() => setFocusDuration(duration)}
+                  className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                    focusDuration === duration
+                      ? "bg-white/30 text-white"
+                      : "text-white/80 hover:bg-white/20"
+                  }`}
+                  aria-label={`Switch to ${duration}-minute focus mode`}
+                >
+                  {duration} min focus
+                </button>
+              ))}
+            </div>
+          </div>
           <TimerDisplay
             timeLeft={timeLeft}
             isRunning={isRunning}
@@ -75,9 +111,9 @@ export default function Timer() {
             <p className="text-sm md:text-base">
               Session progress:{" "}
               <span className="font-semibold">
-                {completedPomodoros % POMODOROS_BEFORE_LONG_BREAK}
+                {completedFocusSessions}
               </span>
-              /{POMODOROS_BEFORE_LONG_BREAK} pomodoros
+              /{focusSessionsPerCycle} {focusDuration}-min sessions
             </p>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -94,7 +130,7 @@ export default function Timer() {
                   <AlertDialogTitle>Reset pomodoro cycle?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This will set the current pomodoro session progress back to 0 out of{" "}
-                    {POMODOROS_BEFORE_LONG_BREAK}.
+                    {focusSessionsPerCycle}.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

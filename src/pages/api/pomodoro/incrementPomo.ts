@@ -18,6 +18,10 @@ export default async function handler(
 
         // Get subject from request body, default to "General"
         const subject = (req.body.subject as string)?.trim() || DEFAULT_SUBJECT;
+        const parsedCount = Number(req.body.count);
+        const count = Number.isFinite(parsedCount) && parsedCount > 0
+            ? Math.floor(parsedCount)
+            : 1;
 
         // Get current time in local timezone
         const now = new Date();
@@ -95,7 +99,7 @@ export default async function handler(
                 subject: subject
             },
             {
-                $inc: { completedCount: 1 },
+                $inc: { completedCount: count },
                 $set: { updatedAt: new Date() },
                 $setOnInsert: {
                     userId,
