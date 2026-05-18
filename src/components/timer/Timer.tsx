@@ -71,11 +71,14 @@ export default function Timer() {
   useDocumentTitle(timeLeft, mode);
 
   return (
-    <div className={`min-h-screen ${TIMER_MODES[mode].color} transition-colors duration-300`}>
+    <div
+      data-mode={mode}
+      className={`min-h-screen ${TIMER_MODES[mode].color} transition-colors duration-300`}
+    >
       <FaviconUpdater mode={mode} isRunning={isRunning} />
       <Header />
       <main className="container mx-auto px-4 pt-8">
-        <div className="max-w-2xl mx-auto bg-white/10 rounded-lg p-6">
+        <div className="app-panel max-w-2xl mx-auto bg-white/10 rounded-lg p-6">
           <TimerTabs currentMode={mode} onModeChange={setMode} />
           <div className="mb-5 flex justify-center">
             <div className="inline-flex rounded-lg border border-white/25 bg-white/10 p-1">
@@ -125,7 +128,7 @@ export default function Timer() {
                   Reset
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="hud-dialog">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset pomodoro cycle?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -134,8 +137,10 @@ export default function Timer() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={resetCompletedPomodoros}>Reset now</AlertDialogAction>
+                  <AlertDialogCancel className="hud-action">Cancel</AlertDialogCancel>
+                  <AlertDialogAction className="hud-action" onClick={resetCompletedPomodoros}>
+                    Reset now
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

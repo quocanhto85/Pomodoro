@@ -79,7 +79,7 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6">
-        <DialogPanel className="w-full max-w-4xl bg-white rounded-xl shadow-xl h-[90vh] overflow-hidden flex flex-col">
+        <DialogPanel className="report-modal w-full max-w-4xl bg-white rounded-xl shadow-xl h-[90vh] overflow-hidden flex flex-col">
           <Tabs defaultValue="summary" className="w-full h-full flex flex-col">
             <div className="flex-none border-b border-gray-200">
               <div className="flex items-center justify-between px-6">

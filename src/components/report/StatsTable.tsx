@@ -96,10 +96,10 @@ export function StatsTable({ data }: StatsTableProps) {
                         )}
                         {format(new Date(record.date), "MMM dd, yyyy")}
                       </div>
-                      <div className="px-6 py-4 text-sm text-gray-900 w-[30%] font-medium">
+                      <div className="stat-value px-6 py-4 text-sm text-gray-900 w-[30%] font-medium">
                         {record.pomodoros}
                       </div>
-                      <div className="px-6 py-4 text-sm text-gray-900 w-[30%]">
+                      <div className="stat-value px-6 py-4 text-sm text-gray-900 w-[30%]">
                         {record.hours.toFixed(2)}
                       </div>
                     </div>

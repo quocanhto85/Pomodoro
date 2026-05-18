@@ -1,8 +1,10 @@
 import Button from "./Button";
-import { ChartLine, Check, Settings, User, LogOut } from "lucide-react";
+import { ChartLine, Check, Settings, User, LogOut, Palette } from "lucide-react";
 import { useState } from "react";
 import { ReportModal } from "@/components/report/ReportModal";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/providers/ThemeProvider";
+import { THEMES, ThemeId } from "@/helpers/constants";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -16,6 +18,7 @@ export default function Header() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const handleLogout = () => {
     router.push("/auth/login");
@@ -57,7 +60,7 @@ export default function Header() {
             align="end"
             sideOffset={5}
           >
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="group flex items-center px-3 py-2 text-white rounded-md cursor-pointer outline-none
                 transition-all duration-200 ease-in-out hover:bg-white/20 focus:bg-white/20"
             >
@@ -65,7 +68,25 @@ export default function Header() {
               <span className="transition-transform duration-200 group-hover:translate-x-0.5">Profile</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-1 h-px bg-white/20" />
-            <DropdownMenuItem 
+            <div className="flex items-center gap-2 px-3 py-1.5 text-white/70 text-xs font-semibold uppercase tracking-wider">
+              <Palette className="h-3.5 w-3.5" />
+              <span>Theme</span>
+            </div>
+            {(Object.keys(THEMES) as ThemeId[]).map((id) => (
+              <DropdownMenuItem
+                key={id}
+                onClick={() => setTheme(id)}
+                className="group flex items-center px-3 py-2 text-white rounded-md cursor-pointer outline-none
+                  transition-all duration-200 ease-in-out hover:bg-white/20 focus:bg-white/20"
+              >
+                <span className="flex-1 transition-transform duration-200 group-hover:translate-x-0.5">
+                  {THEMES[id].label}
+                </span>
+                {theme === id && <Check className="ml-2 h-4 w-4" />}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator className="my-1 h-px bg-white/20" />
+            <DropdownMenuItem
               className="group flex items-center px-3 py-2 text-white rounded-md cursor-pointer outline-none
                 transition-all duration-200 ease-in-out hover:bg-white/20 focus:bg-white/20"
               onClick={handleLogout}

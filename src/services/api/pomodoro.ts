@@ -50,6 +50,16 @@ export const pomodoroService = {
     }
   },
 
+  hideSubjectFromPicker: async (subjectName: string) => {
+    try {
+      const response = await axios.post("/api/pomodoro/subjects", { subjectName });
+      return response.data;
+    } catch (error) {
+      console.error("Error hiding subject from picker:", error);
+      throw error;
+    }
+  },
+
   runMigration: async () => {
     try {
       const response = await axios.post("/api/pomodoro/migrate");

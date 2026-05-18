@@ -92,14 +92,18 @@ export default function SubjectSelector({ activeSubject, onSubjectChange }: Subj
     setIsOpen(false);
   }, [onSubjectChange]);
 
-  const removeSubject = useCallback((subject: string, e: React.MouseEvent) => {
+  const removeSubject = useCallback(async (subject: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    try {
+      await pomodoroService.hideSubjectFromPicker(subject);
+    } catch {
+      console.error("Could not persist hidden subject on server");
+    }
     setSavedSubjects(prev => {
       const updated = prev.filter(s => s !== subject);
       localStorage.setItem(STORAGE_KEYS.SAVED_SUBJECTS, JSON.stringify(updated));
       return updated;
     });
-    // If the removed subject was active, reset to General
     if (activeSubject === subject) {
       onSubjectChange(DEFAULT_SUBJECT);
     }

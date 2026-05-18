@@ -24,7 +24,7 @@ export function CalendarPicker({ selectedMonth, onMonthChange }: CalendarPickerP
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="text-lg font-medium">{currentYear}</span>
+        <span className="text-lg font-medium text-gray-900">{currentYear}</span>
         <button
           onClick={() => onMonthChange(new Date(currentYear + 1, currentMonth))}
           className="p-1 hover:bg-gray-100 rounded transition-colors"

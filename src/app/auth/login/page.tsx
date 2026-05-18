@@ -19,7 +19,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-pomodoro flex items-center justify-center px-4">
+    <div data-mode="pomodoro" className="min-h-screen bg-pomodoro flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
           <div className="flex flex-col items-center mb-8">
@@ -51,7 +51,7 @@ export default function LoginPage() {
             </div>
             <Button
               type="submit"
-              className="w-full bg-white text-pomodoro hover:bg-white/90"
+              className="hud-action w-full bg-white text-pomodoro hover:bg-white/90"
             >
               Sign In
             </Button>

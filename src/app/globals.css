@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   CLASSIC THEME (default) — traditional warm Pomodoro look
+   ============================================================ */
 :root {
   --pomodoro-bg: rgb(186, 73, 73);
   --shortbreak-bg: rgb(56, 133, 138);
@@ -19,3 +22,239 @@
 .bg-longbreak {
   background-color: var(--longbreak-bg);
 }
+
+/* ============================================================
+   CYBERPUNK THEME — dark neon HUD interface
+   --accent is a space-separated RGB triplet so it composes
+   with rgb(... / <alpha>); it changes per timer mode.
+   ============================================================ */
+[data-theme="cyberpunk"] {
+  --accent: 0 229 255;
+}
+
+[data-theme="cyberpunk"] body {
+  background-color: #060912;
+}
+
+[data-theme="cyberpunk"] [data-mode="pomodoro"]  { --accent: 0 229 255; }   /* cyan  */
+[data-theme="cyberpunk"] [data-mode="shortbreak"] { --accent: 45 226 138; } /* green */
+[data-theme="cyberpunk"] [data-mode="longbreak"]  { --accent: 86 156 255; } /* blue  */
+
+/* Dark HUD background + animated-feel grid replacing the solid mode color */
+[data-theme="cyberpunk"] [data-mode] {
+  background-color: #060912;
+  background-image:
+    radial-gradient(1100px 600px at 50% -12%, rgb(var(--accent) / 0.16), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 100% 100%, 46px 46px, 46px 46px;
+}
+
+/* --- Surfaces (remap white tints to neon-accent tints) --- */
+[data-theme="cyberpunk"] .bg-white\/10,
+[data-theme="cyberpunk"] .bg-white\/15 { background-color: rgb(var(--accent) / 0.05); }
+[data-theme="cyberpunk"] .bg-white\/20,
+[data-theme="cyberpunk"] .bg-white\/25 { background-color: rgb(var(--accent) / 0.11); }
+[data-theme="cyberpunk"] .bg-white\/30 { background-color: rgb(var(--accent) / 0.17); }
+
+[data-theme="cyberpunk"] .bg-white\/40 {
+  background-color: rgb(var(--accent) / 0.20);
+  box-shadow: inset 0 0 14px rgb(var(--accent) / 0.28), 0 0 16px rgb(var(--accent) / 0.16);
+}
+
+/* --- Hover / focus states --- */
+[data-theme="cyberpunk"] .hover\:bg-white\/15:hover,
+[data-theme="cyberpunk"] .hover\:bg-white\/20:hover,
+[data-theme="cyberpunk"] .focus\:bg-white\/20:focus { background-color: rgb(var(--accent) / 0.18); }
+[data-theme="cyberpunk"] .hover\:bg-white\/30:hover { background-color: rgb(var(--accent) / 0.24); }
+[data-theme="cyberpunk"] .hover\:text-white:hover { color: #eaf6ff; }
+
+/* --- Borders --- */
+[data-theme="cyberpunk"] .border-white\/15,
+[data-theme="cyberpunk"] .border-white\/20,
+[data-theme="cyberpunk"] .border-white\/25,
+[data-theme="cyberpunk"] .border-white\/30 { border-color: rgb(var(--accent) / 0.38); }
+
+/* --- Text --- */
+[data-theme="cyberpunk"] .text-white { color: #eaf6ff; }
+[data-theme="cyberpunk"] .text-white\/80,
+[data-theme="cyberpunk"] .text-white\/85 { color: rgb(var(--accent) / 0.85); }
+[data-theme="cyberpunk"] .placeholder\:text-white\/50::placeholder { color: rgb(var(--accent) / 0.45); }
+
+/* Subtle HUD letter-spacing on all timer-area controls */
+[data-theme="cyberpunk"] [data-mode] button { letter-spacing: 0.04em; }
+
+/* --- Main timer panel: glowing frame with HUD corner brackets --- */
+[data-theme="cyberpunk"] .app-panel {
+  position: relative;
+  border: 1px solid rgb(var(--accent) / 0.38);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.06),
+    0 0 46px rgb(var(--accent) / 0.12),
+    inset 0 0 34px rgb(var(--accent) / 0.05);
+}
+
+[data-theme="cyberpunk"] .app-panel::before,
+[data-theme="cyberpunk"] .app-panel::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+[data-theme="cyberpunk"] .app-panel::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid rgb(var(--accent));
+  border-left: 2px solid rgb(var(--accent));
+}
+
+[data-theme="cyberpunk"] .app-panel::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid rgb(var(--accent));
+  border-right: 2px solid rgb(var(--accent));
+}
+
+/* --- Timer digits: neon glow --- */
+[data-theme="cyberpunk"] .hud-timer {
+  color: #eaf6ff;
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 0 22px rgb(var(--accent) / 0.65),
+    0 0 8px rgb(var(--accent) / 0.55);
+}
+
+/* --- HUD action buttons (START / PAUSE / Skip): clipped neon corners --- */
+[data-theme="cyberpunk"] .hud-action {
+  clip-path: polygon(
+    11px 0, 100% 0, 100% calc(100% - 11px),
+    calc(100% - 11px) 100%, 0 100%, 0 11px
+  );
+  background-color: rgb(var(--accent) / 0.18) !important;
+  background-image: none !important;
+  border: 1px solid rgb(var(--accent) / 0.65);
+  color: #eaf6ff !important;
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 9px rgb(var(--accent) / 0.7);
+}
+
+[data-theme="cyberpunk"] .hud-action:hover {
+  background-color: rgb(var(--accent) / 0.32) !important;
+}
+
+/* --- Subject picker popover: dark HUD card --- */
+[data-theme="cyberpunk"] .bg-white { background-color: #0a1018 !important; }
+[data-theme="cyberpunk"] .border-gray-100,
+[data-theme="cyberpunk"] .border-gray-200 { border-color: rgb(0 229 255 / 0.22) !important; }
+[data-theme="cyberpunk"] .text-gray-800,
+[data-theme="cyberpunk"] .text-gray-700,
+[data-theme="cyberpunk"] .text-gray-600 { color: #cfe9f5 !important; }
+[data-theme="cyberpunk"] .text-gray-500,
+[data-theme="cyberpunk"] .text-gray-400 { color: #6f93a3 !important; }
+[data-theme="cyberpunk"] .bg-gray-50,
+[data-theme="cyberpunk"] .bg-gray-100 { background-color: rgb(0 229 255 / 0.05) !important; }
+[data-theme="cyberpunk"] .hover\:bg-gray-50:hover { background-color: rgb(0 229 255 / 0.10) !important; }
+[data-theme="cyberpunk"] .bg-rose-50 { background-color: rgb(0 229 255 / 0.12) !important; }
+[data-theme="cyberpunk"] .text-rose-700,
+[data-theme="cyberpunk"] .text-rose-500 { color: #00e5ff !important; }
+[data-theme="cyberpunk"] .bg-rose-500 { background-color: rgb(0 229 255 / 0.85) !important; }
+[data-theme="cyberpunk"] .hover\:bg-rose-600:hover { background-color: #00e5ff !important; }
+
+/* ============================================================
+   CYBERPUNK — Report modal (HUD dark dossier)
+   The modal renders in a portal outside [data-mode], so colors
+   are literal cyan rather than the per-mode --accent variable.
+   ============================================================ */
+[data-theme="cyberpunk"] .report-modal.bg-white {
+  background-color: #070d1a !important;
+  background-image:
+    radial-gradient(900px 360px at 50% -8%, rgb(0 229 255 / 0.14), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 100% 100%, 42px 42px, 42px 42px;
+  border: 1px solid rgb(0 229 255 / 0.40);
+  box-shadow:
+    0 0 60px rgb(0 229 255 / 0.18),
+    inset 0 0 44px rgb(0 229 255 / 0.05);
+}
+
+/* Inner surfaces become faint translucent panels */
+[data-theme="cyberpunk"] .report-modal .bg-white {
+  background-color: rgb(0 229 255 / 0.035) !important;
+}
+[data-theme="cyberpunk"] .report-modal .bg-white\/80 {
+  background-color: rgb(7 13 26 / 0.80) !important;
+}
+[data-theme="cyberpunk"] .report-modal .bg-gray-50,
+[data-theme="cyberpunk"] .report-modal .bg-gray-100,
+[data-theme="cyberpunk"] .report-modal .bg-gray-50\/60 {
+  background-color: rgb(0 229 255 / 0.07) !important;
+}
+[data-theme="cyberpunk"] .report-modal .hover\:bg-gray-50:hover,
+[data-theme="cyberpunk"] .report-modal .hover\:bg-gray-100:hover {
+  background-color: rgb(0 229 255 / 0.12) !important;
+}
+
+/* Readable text */
+[data-theme="cyberpunk"] .report-modal .text-gray-900 { color: #eaf6ff !important; }
+[data-theme="cyberpunk"] .report-modal .text-gray-800 { color: #dbeef7 !important; }
+[data-theme="cyberpunk"] .report-modal .text-gray-700,
+[data-theme="cyberpunk"] .report-modal .text-gray-600 { color: #aac9d6 !important; }
+[data-theme="cyberpunk"] .report-modal .text-gray-500,
+[data-theme="cyberpunk"] .report-modal .text-gray-400 { color: #6f93a3 !important; }
+
+/* Borders + row dividers */
+[data-theme="cyberpunk"] .report-modal .border-b,
+[data-theme="cyberpunk"] .report-modal .border-t,
+[data-theme="cyberpunk"] .report-modal .border-gray-50,
+[data-theme="cyberpunk"] .report-modal .border-gray-100,
+[data-theme="cyberpunk"] .report-modal .border-gray-200 {
+  border-color: rgb(0 229 255 / 0.18) !important;
+}
+[data-theme="cyberpunk"] .report-modal .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+[data-theme="cyberpunk"] .report-modal .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(0 229 255 / 0.12) !important;
+}
+
+/* Neon accents (active tab, links, error text) */
+[data-theme="cyberpunk"] .report-modal .text-rose-600,
+[data-theme="cyberpunk"] .report-modal .text-rose-500 { color: #00e5ff !important; }
+[data-theme="cyberpunk"] .report-modal .text-red-500 { color: #ff7a7a !important; }
+[data-theme="cyberpunk"] .report-modal .before\:bg-rose-600::before { background-color: #00e5ff !important; }
+
+/* Table header — HUD strip */
+[data-theme="cyberpunk"] .report-modal thead.bg-gray-50 {
+  background-color: rgb(0 229 255 / 0.10) !important;
+}
+[data-theme="cyberpunk"] .report-modal thead .text-gray-500 {
+  color: #7fe9f5 !important;
+}
+
+/* Highlighted stat values */
+[data-theme="cyberpunk"] .report-modal .stat-value {
+  color: #00e5ff !important;
+  font-weight: 600;
+  text-shadow: 0 0 9px rgb(0 229 255 / 0.55);
+}
+
+/* ============================================================
+   CYBERPUNK — Reset-confirmation dialog (HUD card)
+   ============================================================ */
+[data-theme="cyberpunk"] .hud-dialog.bg-white {
+  background-color: #070d1a !important;
+  background-image:
+    radial-gradient(700px 280px at 50% -14%, rgb(0 229 255 / 0.16), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+  border-color: rgb(0 229 255 / 0.45) !important;
+  box-shadow:
+    0 0 55px rgb(0 229 255 / 0.20),
+    inset 0 0 38px rgb(0 229 255 / 0.05);
+}
+
+[data-theme="cyberpunk"] .hud-dialog.text-gray-900 { color: #eaf6ff !important; }
+[data-theme="cyberpunk"] .hud-dialog .text-muted-foreground { color: #aac9d6 !important; }

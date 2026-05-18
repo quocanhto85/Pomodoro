@@ -21,7 +21,25 @@ export const STORAGE_KEYS = {
   ACTIVE_SUBJECT: "activeSubject",
   SAVED_SUBJECTS: "savedSubjects",
   FOCUS_DURATION: "focusDuration",
+  THEME: "theme",
 } as const;
+
+export const THEMES = {
+  classic: {
+    id: "classic",
+    label: "Classic Red",
+    description: "The traditional warm Pomodoro look.",
+  },
+  cyberpunk: {
+    id: "cyberpunk",
+    label: "Cyberpunk HUD",
+    description: "Dark neon interface with glowing HUD controls.",
+  },
+} as const;
+
+export type ThemeId = keyof typeof THEMES;
+
+export const DEFAULT_THEME: ThemeId = "classic";
 
 export const DEFAULT_SUBJECT = "General";
 
