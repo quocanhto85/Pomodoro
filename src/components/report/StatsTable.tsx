@@ -7,6 +7,14 @@ interface StatsTableProps {
   data: DailyRecord[];
 }
 
+/** Integers as-is; fractional pomodoros rounded to 3 decimal places. */
+function formatPomodoros(value: number): string {
+  if (Number.isInteger(value)) {
+    return String(value);
+  }
+  return parseFloat(value.toFixed(3)).toString();
+}
+
 function SubjectDot({ index }: { index: number }) {
   return (
     <span
@@ -97,7 +105,7 @@ export function StatsTable({ data }: StatsTableProps) {
                         {format(new Date(record.date), "MMM dd, yyyy")}
                       </div>
                       <div className="stat-value px-6 py-4 text-sm text-gray-900 w-[30%] font-medium">
-                        {record.pomodoros}
+                        {formatPomodoros(record.pomodoros)}
                       </div>
                       <div className="stat-value px-6 py-4 text-sm text-gray-900 w-[30%]">
                         {record.hours.toFixed(2)}
@@ -120,7 +128,7 @@ export function StatsTable({ data }: StatsTableProps) {
                             </span>
                           </div>
                           <div className="px-6 py-2.5 text-sm text-gray-600 w-[30%]">
-                            {sub.pomodoros}
+                            {formatPomodoros(sub.pomodoros)}
                           </div>
                           <div className="px-6 py-2.5 text-sm text-gray-600 w-[30%]">
                             {sub.hours.toFixed(2)}
