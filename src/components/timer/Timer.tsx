@@ -11,7 +11,7 @@ import {
 } from "@/helpers/constants";
 import { useTimer, useDocumentTitle } from "@/hooks";
 import { Header, FaviconUpdater } from "@/components/common";
-import { TimerDisplay, TimerStatus, TimerTabs } from "@/components/timer";
+import { TimerDisplay, TimerStatus, TimerTabs, Stopwatch } from "@/components/timer";
 import SubjectSelector from "@/components/timer/SubjectSelector";
 import { RotateCcw } from "lucide-react";
 import {
@@ -29,6 +29,7 @@ import {
 export default function Timer() {
   const [activeSubject, setActiveSubject] = useState(DEFAULT_SUBJECT);
   const [focusDuration, setFocusDuration] = useState<FocusDuration>(FOCUS_DURATIONS.TRADITIONAL);
+  const [isStopwatch, setIsStopwatch] = useState(false);
 
   // Load active subject from localStorage on mount
   useEffect(() => {
@@ -41,6 +42,10 @@ export default function Timer() {
     if (savedDuration === FOCUS_DURATIONS.TRADITIONAL || savedDuration === FOCUS_DURATIONS.EXTENDED) {
       setFocusDuration(savedDuration);
     }
+
+    if (localStorage.getItem(STORAGE_KEYS.STOPWATCH_MODE) === "true") {
+      setIsStopwatch(true);
+    }
   }, []);
 
   // Save active subject to localStorage when it changes
@@ -51,6 +56,10 @@ export default function Timer() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.FOCUS_DURATION, focusDuration.toString());
   }, [focusDuration]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STOPWATCH_MODE, String(isStopwatch));
+  }, [isStopwatch]);
 
   const {
     mode,
@@ -68,7 +77,7 @@ export default function Timer() {
     (completedPomodoros % POMODOROS_BEFORE_LONG_BREAK) / completedCountPerFocusSession
   );
 
-  useDocumentTitle(timeLeft, mode);
+  useDocumentTitle(timeLeft, mode, !isStopwatch);
 
   return (
     <div
@@ -79,37 +88,63 @@ export default function Timer() {
       <Header />
       <main className="container mx-auto px-4 pt-8">
         <div className="app-panel max-w-2xl mx-auto bg-white/10 rounded-lg p-6">
-          <TimerTabs currentMode={mode} onModeChange={setMode} />
+          {!isStopwatch && <TimerTabs currentMode={mode} onModeChange={setMode} />}
           <div className="mb-5 flex justify-center">
             <div className="inline-flex rounded-lg border border-white/25 bg-white/10 p-1">
-              {[FOCUS_DURATIONS.TRADITIONAL, FOCUS_DURATIONS.EXTENDED].map((duration) => (
-                <button
-                  key={duration}
-                  type="button"
-                  onClick={() => setFocusDuration(duration)}
-                  className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
-                    focusDuration === duration
-                      ? "bg-white/30 text-white"
-                      : "text-white/80 hover:bg-white/20"
-                  }`}
-                  aria-label={`Switch to ${duration}-minute focus mode`}
-                >
-                  {duration} min focus
-                </button>
-              ))}
+              {[FOCUS_DURATIONS.TRADITIONAL, FOCUS_DURATIONS.EXTENDED].map((duration) => {
+                const isActive = !isStopwatch && focusDuration === duration;
+                return (
+                  <button
+                    key={duration}
+                    type="button"
+                    onClick={() => {
+                      setIsStopwatch(false);
+                      setFocusDuration(duration);
+                    }}
+                    className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                      isActive
+                        ? "bg-white/30 text-white"
+                        : "text-white/80 hover:bg-white/20"
+                    }`}
+                    aria-label={`Switch to ${duration}-minute focus mode`}
+                  >
+                    {duration} min focus
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsStopwatch(true);
+                  setMode("pomodoro");
+                }}
+                className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  isStopwatch
+                    ? "bg-white/30 text-white"
+                    : "text-white/80 hover:bg-white/20"
+                }`}
+                aria-label="Switch to count-up stopwatch mode"
+              >
+                Stopwatch
+              </button>
             </div>
           </div>
-          <TimerDisplay
-            timeLeft={timeLeft}
-            isRunning={isRunning}
-            mode={mode}
-            onToggle={toggleTimer}
-            onSkip={handleSkip}
-          />
+          {isStopwatch ? (
+            <Stopwatch activeSubject={activeSubject} />
+          ) : (
+            <TimerDisplay
+              timeLeft={timeLeft}
+              isRunning={isRunning}
+              mode={mode}
+              onToggle={toggleTimer}
+              onSkip={handleSkip}
+            />
+          )}
           <SubjectSelector
             activeSubject={activeSubject}
             onSubjectChange={setActiveSubject}
           />
+          {!isStopwatch && (
           <div className="mt-4 flex items-center justify-center gap-3 text-white/85">
             <p className="text-sm md:text-base">
               Session progress:{" "}
@@ -145,6 +180,7 @@ export default function Timer() {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+          )}
         </div>
         <TimerStatus mode={mode} />
       </main>

@@ -22,7 +22,11 @@ export const STORAGE_KEYS = {
   SAVED_SUBJECTS: "savedSubjects",
   FOCUS_DURATION: "focusDuration",
   THEME: "theme",
+  STOPWATCH_MODE: "stopwatchMode",
 } as const;
+
+// One pomodoro is defined as 25 minutes of focus across the whole app.
+export const MINUTES_PER_POMODORO = 25;
 
 export const THEMES = {
   classic: {

@@ -4,3 +4,4 @@ export { default as TimerContainer } from "./TimerContainer";
 export { default as TimerStatus } from "./TimerStatus";
 export { default as TimerTabs } from "./TimerTabs";
 export { default as SubjectSelector } from "./SubjectSelector";
+export { default as Stopwatch } from "./Stopwatch";

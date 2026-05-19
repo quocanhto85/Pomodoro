@@ -139,7 +139,7 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
                           leaveFrom="opacity-100 translate-y-0"
                           leaveTo="opacity-0 translate-y-2"
                         >
-                          <ListboxOptions className="absolute z-50 mt-2 w-full max-h-48 bg-white rounded-xl shadow-lg border border-gray-200/75 py-1 overflow-auto focus:outline-none">
+                          <ListboxOptions className="report-popover absolute z-50 mt-2 w-full max-h-48 bg-white rounded-xl shadow-lg border border-gray-200/75 py-1 overflow-auto focus:outline-none">
                             {years.map((year) => (
                               <ListboxOption
                                 key={year}

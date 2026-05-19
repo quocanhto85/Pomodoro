@@ -185,6 +185,13 @@
 [data-theme="cyberpunk"] .report-modal .bg-white {
   background-color: rgb(0 229 255 / 0.035) !important;
 }
+
+/* Floating dropdowns must stay fully opaque so they don't bleed
+   into the content underneath them. */
+[data-theme="cyberpunk"] .report-modal .report-popover {
+  background-color: #0c1626 !important;
+  border-color: rgb(0 229 255 / 0.30) !important;
+}
 [data-theme="cyberpunk"] .report-modal .bg-white\/80 {
   background-color: rgb(7 13 26 / 0.80) !important;
 }

@@ -18,9 +18,10 @@ export default async function handler(
 
         // Get subject from request body, default to "General"
         const subject = (req.body.subject as string)?.trim() || DEFAULT_SUBJECT;
+        // Counts may be fractional (e.g. a 12.5-min count-up session = 0.5 pomodoros).
         const parsedCount = Number(req.body.count);
         const count = Number.isFinite(parsedCount) && parsedCount > 0
-            ? Math.floor(parsedCount)
+            ? Math.round(parsedCount * 100) / 100
             : 1;
 
         // Get current time in local timezone
