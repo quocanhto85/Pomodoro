@@ -37,9 +37,11 @@ export default function SubjectSelector({ activeSubject, onSubjectChange }: Subj
           .map((s: { name: string }) => s.name)
           .filter((name: string) => name !== DEFAULT_SUBJECT);
 
-        // Merge: deduplicate by normalized name (handles "🧬AI" vs "🧬 AI")
+        // Merge: deduplicate by normalized name (handles "🧬AI" vs "🧬 AI").
+        // DB is the source of truth — list it first so its spelling wins over
+        // a stale localStorage variant of the same normalized name.
         const seen = new Map<string, string>();
-        for (const s of [...localSubjects, ...dbSubjects]) {
+        for (const s of [...dbSubjects, ...localSubjects]) {
           const key = normalizeSubject(s);
           if (!seen.has(key)) seen.set(key, s);
         }
