@@ -1,0 +1,7 @@
+# Custom Socket.io Node server — only used for local dev, can't run on Vercel
+# (Vercel is serverless; Socket.io needs a long-lived process). Excluding so
+# Vercel's auto-detector doesn't pick it as the deploy entrypoint.
+server.ts
+
+# One-off DB migration script — not part of the app
+migrate-cs-subject.js
