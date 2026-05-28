@@ -265,3 +265,29 @@
 
 [data-theme="cyberpunk"] .hud-dialog.text-gray-900 { color: #eaf6ff !important; }
 [data-theme="cyberpunk"] .hud-dialog .text-muted-foreground { color: #aac9d6 !important; }
+
+/* ============================================================
+   CYBERPUNK — Error toast (Sonner)
+   ============================================================ */
+[data-theme="cyberpunk"] .hud-error-toast-card {
+  background-color: #070d1a !important;
+  border-color: rgb(0 229 255 / 0.42) !important;
+  box-shadow:
+    0 0 40px rgb(0 229 255 / 0.16),
+    inset 0 0 30px rgb(0 229 255 / 0.04);
+}
+
+[data-theme="cyberpunk"] .hud-error-title {
+  color: #00e5ff !important;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 8px rgb(0 229 255 / 0.45);
+}
+
+[data-theme="cyberpunk"] .hud-error-message {
+  color: #aac9d6 !important;
+}
+
+[data-theme="cyberpunk"] .hud-error-icon {
+  color: #00e5ff !important;
+  filter: drop-shadow(0 0 6px rgb(0 229 255 / 0.4));
+}
