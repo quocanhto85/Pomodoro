@@ -15,7 +15,7 @@ export function CalendarPicker({ selectedMonth, onMonthChange }: CalendarPickerP
   const currentMonth = selectedMonth.getMonth();
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 w-[300px]">
+    <div className="bg-white rounded-lg shadow p-6 w-full md:w-[300px]">
       {/* Year Navigation */}
       <div className="flex items-center justify-between mb-4">
         <button
