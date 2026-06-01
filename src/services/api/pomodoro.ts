@@ -3,9 +3,13 @@ import axios from "axios";
 export const pomodoroService = {
   incrementSession: async (subject?: string, count = 1) => {
     try {
+      // Resolve the user's IANA timezone here in the browser, where it is always
+      // correct. The API runs in UTC on Vercel, so it can't infer this itself.
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const response = await axios.post("/api/pomodoro/incrementPomo", {
         subject: subject || undefined,
         count,
+        timeZone,
       });
       return response.data;
     } catch (error) {

@@ -3,6 +3,21 @@ import clientPromise from "@/db/mongodb/client";
 
 const DEFAULT_SUBJECT = "General";
 
+/**
+ * Validate an IANA timezone string sent by the client (e.g. "Australia/Adelaide").
+ * Returns it if usable, otherwise falls back to "UTC". This guards against the
+ * RangeError that Intl/toLocaleDateString throw on an unknown timezone.
+ */
+function resolveTimeZone(tz: unknown): string {
+    if (typeof tz !== "string" || tz.length === 0) return "UTC";
+    try {
+        new Intl.DateTimeFormat("en-US", { timeZone: tz });
+        return tz;
+    } catch {
+        return "UTC";
+    }
+}
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -24,15 +39,17 @@ export default async function handler(
             ? Math.round(parsedCount * 100) / 100
             : 1;
 
-        // Get current time in local timezone
+        // Resolve the user's timezone from the request. The browser knows it;
+        // this server runs in UTC on Vercel and cannot infer it. Fall back to UTC.
+        const timeZone = resolveTimeZone(req.body.timeZone);
         const now = new Date();
 
-        // Get the local date string in YYYY-MM-DD format
+        // Get the user's local calendar date (in their timezone) as MM/DD/YYYY
         const localDateString = now.toLocaleDateString("en-US", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            timeZone
         });
 
         // Create UTC date from local date string
