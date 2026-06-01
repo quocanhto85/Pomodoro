@@ -137,19 +137,19 @@ export default function Stopwatch({ activeSubject }: StopwatchProps) {
 
   const previewPomodoros = toPomodoros(elapsed);
   const previewHours = Math.round((elapsed / 3600) * 100) / 100;
-  const actionButtonClass = "hud-action bg-pomodoro w-40 py-3 text-xl font-bold";
+  const actionButtonClass = "hud-action bg-pomodoro w-32 sm:w-40 py-3 text-xl font-bold";
 
   return (
     <div className="text-center">
-      <div className="hud-timer text-[120px] font-bold text-white leading-tight mb-6">
+      <div className="hud-timer text-[72px] sm:text-[96px] md:text-[120px] font-bold text-white leading-tight mb-6">
         {formatTime(elapsed)}
       </div>
 
-      <div className="flex justify-center items-center gap-4">
+      <div className="flex justify-center items-center gap-3 sm:gap-4">
         {isIdle && (
           <Button
             variant="secondary"
-            className="hud-action bg-pomodoro w-52 py-3 text-xl font-bold"
+            className="hud-action bg-pomodoro w-44 sm:w-52 py-3 text-xl font-bold"
             onClick={start}
             disabled={saving}
           >

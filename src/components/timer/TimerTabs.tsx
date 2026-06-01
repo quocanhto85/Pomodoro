@@ -8,13 +8,13 @@ interface TimerTabsProps {
 
 export default function TimerTabs({ currentMode, onModeChange }: TimerTabsProps) {
   return (
-    <div className="flex justify-center gap-4 mb-8">
+    <div className="flex justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
       {(Object.keys(TIMER_MODES) as TimerMode[]).map((mode) => (
         <Button
         key={mode}
-        className={`transition-colors font-bold ${
-          currentMode === mode 
-            ? "bg-white/40" 
+        className={`transition-colors font-bold px-3 sm:px-4 text-sm sm:text-base ${
+          currentMode === mode
+            ? "bg-white/40"
             : "hover:bg-white/30"
         }`}
         onClick={() => onModeChange(mode)}

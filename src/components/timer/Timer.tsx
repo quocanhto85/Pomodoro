@@ -87,7 +87,7 @@ export default function Timer() {
       <FaviconUpdater mode={mode} isRunning={isRunning} />
       <Header />
       <main className="container mx-auto px-4 pt-8">
-        <div className="app-panel max-w-2xl mx-auto bg-white/10 rounded-lg p-6">
+        <div className="app-panel max-w-2xl mx-auto bg-white/10 rounded-lg p-4 sm:p-6">
           {!isStopwatch && <TimerTabs currentMode={mode} onModeChange={setMode} />}
           <div className="mb-5 flex justify-center">
             <div className="inline-flex rounded-lg border border-white/25 bg-white/10 p-1">
@@ -101,7 +101,7 @@ export default function Timer() {
                       setIsStopwatch(false);
                       setFocusDuration(duration);
                     }}
-                    className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                    className={`rounded-md px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-colors ${
                       isActive
                         ? "bg-white/30 text-white"
                         : "text-white/80 hover:bg-white/20"
@@ -118,7 +118,7 @@ export default function Timer() {
                   setIsStopwatch(true);
                   setMode("pomodoro");
                 }}
-                className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                className={`rounded-md px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-colors ${
                   isStopwatch
                     ? "bg-white/30 text-white"
                     : "text-white/80 hover:bg-white/20"
@@ -145,8 +145,8 @@ export default function Timer() {
             onSubjectChange={setActiveSubject}
           />
           {!isStopwatch && (
-          <div className="mt-4 flex items-center justify-center gap-3 text-white/85">
-            <p className="text-sm md:text-base">
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-white/85">
+            <p className="text-sm md:text-base text-center">
               Session progress:{" "}
               <span className="font-semibold">
                 {completedFocusSessions}

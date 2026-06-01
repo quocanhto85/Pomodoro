@@ -25,32 +25,34 @@ export default function Header() {
   };
 
   return (
-    <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-      <div className="flex items-center gap-2 text-white">
-        <Check className="w-8 h-8" />
-        <span className="text-2xl font-bold">Pomodoro - Boost your productivity</span>
+    <header className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 flex justify-between items-center gap-2">
+      <div className="flex items-center gap-2 text-white min-w-0">
+        <Check className="w-6 h-6 sm:w-8 sm:h-8 shrink-0" />
+        <span className="text-base sm:text-2xl font-bold truncate">
+          Pomodoro<span className="hidden sm:inline"> - Boost your productivity</span>
+        </span>
       </div>
-      <div className="flex gap-2">
-        <Button className="group flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-white transition-all duration-300 ease-in-out hover:bg-white/20 hover:shadow-lg hover:scale-105 active:scale-95 backdrop-blur-lg" onClick={() => setIsReportModalOpen(true)}>
-          <ChartLine className="w-5 h-5 transition-transform duration-300 group-hover:rotate-6" />
-          <span className="transition-transform duration-300 group-hover:translate-x-0.5">Report</span>
+      <div className="flex gap-1.5 sm:gap-2 shrink-0">
+        <Button className="group flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 rounded-lg text-white transition-all duration-300 ease-in-out hover:bg-white/20 hover:shadow-lg hover:scale-105 active:scale-95 backdrop-blur-lg" onClick={() => setIsReportModalOpen(true)}>
+          <ChartLine className="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:rotate-6" />
+          <span className="hidden sm:inline transition-transform duration-300 group-hover:translate-x-0.5">Report</span>
         </Button>
         <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DropdownMenuTrigger asChild>
-            <Button className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-all duration-300 ease-in-out backdrop-blur-lg
-                ${isSettingsOpen 
-                  ? "bg-white/20 shadow-lg scale-105" 
-                  : "bg-white/10 hover:bg-white/15 hover:shadow-lg hover:scale-105"} 
+            <Button className={`group flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-white transition-all duration-300 ease-in-out backdrop-blur-lg
+                ${isSettingsOpen
+                  ? "bg-white/20 shadow-lg scale-105"
+                  : "bg-white/10 hover:bg-white/15 hover:shadow-lg hover:scale-105"}
                 active:scale-95`}>
-              <Settings className={`w-5 h-5 transition-all duration-300 ease-in-out
-                  ${isSettingsOpen 
-                    ? "rotate-180 scale-110" 
+              <Settings className={`w-5 h-5 shrink-0 transition-all duration-300 ease-in-out
+                  ${isSettingsOpen
+                    ? "rotate-180 scale-110"
                     : "group-hover:rotate-90 group-hover:scale-110"}`} />
-              <span className={`transition-transform duration-300 ${isSettingsOpen ? "translate-x-0.5" : "group-hover:translate-x-0.5"}`}>Setting</span>
+              <span className={`hidden sm:inline transition-transform duration-300 ${isSettingsOpen ? "translate-x-0.5" : "group-hover:translate-x-0.5"}`}>Setting</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="w-56 mt-2 p-1 rounded-lg bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg
+            className="w-56 mt-2 p-1 rounded-lg bg-slate-900/95 backdrop-blur-xl border border-white/20 shadow-lg
               data-[state=open]:animate-in data-[state=closed]:animate-out
               data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
               data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95

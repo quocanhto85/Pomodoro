@@ -239,6 +239,7 @@ export function MonthlyStats({
 
   const options: ChartOptions<"bar"> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: hasSubjectData,
@@ -246,8 +247,9 @@ export function MonthlyStats({
         labels: {
           usePointStyle: true,
           pointStyle: "rectRounded",
-          padding: 16,
-          font: { size: 12 },
+          padding: 12,
+          boxWidth: 12,
+          font: { size: 11 },
         },
       },
       title: {
@@ -279,6 +281,13 @@ export function MonthlyStats({
         grid: {
           display: true,
           color: "rgba(0, 0, 0, 0.05)"
+        },
+        ticks: {
+          color: "#666",
+          autoSkip: false,
+          maxRotation: 90,
+          minRotation: 45,
+          font: { size: 10 }
         }
       },
       y: {
@@ -306,8 +315,10 @@ export function MonthlyStats({
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold text-gray-800">Focus Hours</h2>
-      <div ref={chartContainerRef} className={`bg-white rounded-lg p-6 border relative ${isLoading ? "opacity-50" : ""}`}>
-        <Bar data={monthlyData} options={options} />
+      <div ref={chartContainerRef} className={`bg-white rounded-lg p-3 sm:p-6 border relative ${isLoading ? "opacity-50" : ""}`}>
+        <div className="relative h-64 sm:h-80 md:h-96">
+          <Bar data={monthlyData} options={options} />
+        </div>
       </div>
     </div>
   );

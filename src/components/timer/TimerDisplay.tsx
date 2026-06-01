@@ -24,13 +24,13 @@ const onTest = async () => {
 export default function TimerDisplay({ timeLeft, isRunning, mode, onToggle, onSkip }: TimerDisplayProps) {
   return (
     <div className="text-center">
-      <div className="hud-timer text-[120px] font-bold text-white leading-tight mb-6">
+      <div className="hud-timer text-[72px] sm:text-[96px] md:text-[120px] font-bold text-white leading-tight mb-6">
         {formatTime(timeLeft)}
       </div>
-      <div className="flex justify-center items-center gap-4">
+      <div className="flex justify-center items-center gap-3 sm:gap-4">
         <Button
           variant="secondary"
-          className={`hud-action w-52 py-3 text-xl font-bold ${TIMER_MODES[mode].color}`}
+          className={`hud-action w-44 sm:w-52 py-3 text-xl font-bold ${TIMER_MODES[mode].color}`}
           onClick={onToggle}
         >
           {isRunning ? "PAUSE" : "START"}
