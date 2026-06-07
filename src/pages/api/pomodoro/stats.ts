@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "@/db/mongodb/client";
+import { getUserIdFromRequest } from "@/lib/auth";
 
 const DEFAULT_SUBJECT = "General";
 
@@ -12,9 +13,13 @@ export default async function handler(
     }
 
     try {
+        const userId = await getUserIdFromRequest(req, res);
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
         const client = await clientPromise;
         const db = client.db("pomodoro_app");
-        const userId = "anhtpq";
 
         // Get the year from request body, default to current year
         const year = parseInt(req.body.year as string) || new Date().getFullYear();

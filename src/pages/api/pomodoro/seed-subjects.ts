@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "@/db/mongodb/client";
+import { getUserIdFromRequest, OWNER_USER_ID } from "@/lib/auth";
 
 /**
  * One-time fix: rename "AI" → "🧬 AI" and "Mathematics" → "📊 Mathematics"
@@ -16,6 +17,12 @@ export default async function handler(
     }
 
     try {
+        // Global, destructive maintenance — restrict to the owner.
+        const userId = await getUserIdFromRequest(req, res);
+        if (userId !== OWNER_USER_ID) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
         const client = await clientPromise;
         const db = client.db("pomodoro_app");
         const collection = db.collection("pomodoroSessions");

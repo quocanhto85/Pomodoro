@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "@/db/mongodb/client";
+import { getUserIdFromRequest } from "@/lib/auth";
 
 export default async function handler(
     req: NextApiRequest,
@@ -10,9 +11,13 @@ export default async function handler(
     }
   
     try {
+      const userId = await getUserIdFromRequest(req, res);
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const client = await clientPromise;
       const db = client.db("pomodoro_app");
-      const userId = "anhtpq";
   
       const { month, year } = req.query;
   

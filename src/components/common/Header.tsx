@@ -1,8 +1,10 @@
+"use client";
+
 import Button from "./Button";
 import { ChartLine, Check, Settings, User, LogOut, Palette } from "lucide-react";
 import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import { ReportModal } from "@/components/report/ReportModal";
-import { useRouter } from "next/navigation";
 import { useTheme } from "@/providers/ThemeProvider";
 import { THEMES, ThemeId } from "@/helpers/constants";
 import {
@@ -18,11 +20,11 @@ export default function Header() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
 
   const handleLogout = () => {
-    router.push("/auth/login");
+    signOut({ callbackUrl: "/auth/login" });
   };
 
   return (
@@ -64,13 +66,29 @@ export default function Header() {
             align="end"
             sideOffset={5}
           >
-            <DropdownMenuItem
-              className="group flex items-center px-3 py-2 text-white rounded-md cursor-pointer outline-none
-                transition-all duration-200 ease-in-out hover:bg-white/20 focus:bg-white/20"
-            >
-              <User className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-              <span className="transition-transform duration-200 group-hover:translate-x-0.5">Profile</span>
-            </DropdownMenuItem>
+            <div className="flex items-center gap-2 px-3 py-2 text-white">
+              {session?.user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={session.user.image}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="h-8 w-8 shrink-0 rounded-full"
+                />
+              ) : (
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
+                  <User className="h-4 w-4" />
+                </span>
+              )}
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">
+                  {session?.user?.name ?? "Account"}
+                </p>
+                {session?.user?.email && (
+                  <p className="truncate text-xs text-white/60">{session.user.email}</p>
+                )}
+              </div>
+            </div>
             <DropdownMenuSeparator className="my-1 h-px bg-white/20" />
             <div className="flex items-center gap-2 px-3 py-1.5 text-white/70 text-xs font-semibold uppercase tracking-wider">
               <Palette className="h-3.5 w-3.5" />

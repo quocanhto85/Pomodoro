@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "@/db/mongodb/client";
 import { ObjectId } from "mongodb";
+import { getUserIdFromRequest, OWNER_USER_ID } from "@/lib/auth";
 
 /**
  * One-time migration endpoint to upgrade the pomodoroSessions collection
@@ -25,6 +26,12 @@ export default async function handler(
     }
 
     try {
+        // Global, destructive maintenance — restrict to the owner.
+        const userId = await getUserIdFromRequest(req, res);
+        if (userId !== OWNER_USER_ID) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
         const client = await clientPromise;
         const db = client.db("pomodoro_app");
         const collection = db.collection("pomodoroSessions");

@@ -1,22 +1,21 @@
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Timer } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
+const ERROR_MESSAGES: Record<string, string> = {
+  AccessDenied: "This Google account isn't allowed to sign in.",
+  OAuthAccountNotLinked: "This email is already linked to a different sign-in method.",
+  Configuration: "Sign-in is temporarily unavailable. Please try again later.",
+  Verification: "The sign-in link is no longer valid. Please try again.",
+  default: "Something went wrong while signing in. Please try again.",
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle login logic here
-    router.push("/");
-  };
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
+}) {
+  const { callbackUrl, error } = await searchParams;
+  const errorMessage = error ? ERROR_MESSAGES[error] ?? ERROR_MESSAGES.default : null;
 
   return (
     <div data-mode="pomodoro" className="min-h-screen bg-pomodoro flex items-center justify-center px-4">
@@ -30,44 +29,20 @@ export default function LoginPage() {
             <p className="text-white/80">Sign in to continue your focus journey</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-            </div>
-            <div>
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="hud-action w-full bg-white text-pomodoro hover:bg-white/90"
+          {errorMessage && (
+            <div
+              role="alert"
+              className="mb-4 rounded-md border border-red-300/40 bg-red-500/15 px-4 py-3 text-sm text-white"
             >
-              Sign In
-            </Button>
-          </form>
+              {errorMessage}
+            </div>
+          )}
 
-          <div className="mt-6 text-center">
-            <p className="text-white/80">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/register"
-                className="text-white hover:underline font-medium"
-              >
-                Sign Up
-              </Link>
-            </p>
-          </div>
+          <GoogleSignInButton callbackUrl={callbackUrl ?? "/"} />
+
+          <p className="mt-6 text-center text-sm text-white/70">
+            We use your Google account to sign you in securely — no password needed.
+          </p>
         </div>
       </div>
     </div>

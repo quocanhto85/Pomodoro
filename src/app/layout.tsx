@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { AuthProvider } from "@/providers/AuthProvider";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Toaster } from "sonner";
@@ -28,12 +29,14 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={inter.className}>
-        <ThemeProvider>
-          <ReduxProvider>
-            {children}
-            <Toaster />
-          </ReduxProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <ReduxProvider>
+              {children}
+              <Toaster />
+            </ReduxProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
