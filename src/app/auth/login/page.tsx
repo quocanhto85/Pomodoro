@@ -1,5 +1,6 @@
 import { Timer } from "lucide-react";
 import { GoogleSignInButton } from "./GoogleSignInButton";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 const ERROR_MESSAGES: Record<string, string> = {
   AccessDenied: "This Google account isn't allowed to sign in.",
@@ -18,7 +19,10 @@ export default async function LoginPage({
   const errorMessage = error ? ERROR_MESSAGES[error] ?? ERROR_MESSAGES.default : null;
 
   return (
-    <div data-mode="pomodoro" className="min-h-screen bg-pomodoro flex items-center justify-center px-4">
+    <div data-mode="pomodoro" className="relative min-h-screen bg-pomodoro flex items-center justify-center px-4">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeSwitcher />
+      </div>
       <div className="w-full max-w-md">
         <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
           <div className="flex flex-col items-center mb-8">
@@ -41,7 +45,7 @@ export default async function LoginPage({
           <GoogleSignInButton callbackUrl={callbackUrl ?? "/"} />
 
           <p className="mt-6 text-center text-sm text-white/70">
-            We use your Google account to sign you in securely — no password needed.
+            We use your Google account to sign you in securely
           </p>
         </div>
       </div>
